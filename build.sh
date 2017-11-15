@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 DOCKER_PATH=$(which docker)
-SERVICE_NAME=forms-api
+SERVICE_NAME=admin-api
 IMAGE_TAG=bidir/$SERVICE_NAME
 EXPOSE_PORT=8090
 CONT_PORT=8090
