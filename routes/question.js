@@ -19,32 +19,44 @@ var router  = Router();
  *
  * @apiDescription Create new Question.
  *
- * @apiParam {String} title Question Title
+ * @apiParam {String} question_text Question Text Title
  * @apiParam {String} remark Question Remark
  * @apiParam {String} type Question Type ie _Yes/No_, _Fill In Blank_, or _Multiple Choice_
  * @apiParam {String} [sub_questions] Nested Sub Questions References
+ * @apiParam {Boolean} required Question required or not(true or false)
+ * @apiParam {Array} options Questions Options
  *
  * @apiParamExample Request Example:
  *  {
- *    title: "Question Title",
+ *    question_text: "Question Text Title",
  *    remark: "This is a remark",
  *    type: "Yes/No",
- *    sub_questions: []
+ *    required: true
+ *    sub_questions: [],
+ *    options: ['Yes', 'No']
  *  }
  *
  * @apiSuccess {String} _id question id
- * @apiSuccess {String} title Question Title
+ * @apiSuccess {String} question_text Question Text Title
  * @apiSuccess {String} remark Question Remark
  * @apiSuccess {String} type Question Type ie _Yes/No_, _Fill In Blank_, or _Multiple Choice_
  * @apiSuccess {String} sub_questions Nested Sub Questions References
+ * @apiSuccess {Boolean} required Question required or not(true or false)
+ * @apiSuccess {Array} options Questions Options
+ * @apiSuccess {Array} single_choice Question Single Choice
+ * @apiSuccess {Array} multiple_choice Question Multiple Choice
  *
  * @apiSuccessExample Response Example:
  *  {
  *    _id : "556e1174a8952c9521286a60",
- *    title: "Question Title",
+ *    question_text: "Question Text Title",
  *    remark: "This is a remark",
  *    type: "Yes/No",
- *    sub_questions: []
+ *    sub_questions: [],
+ *    required: true
+ *    options: ['Yes', 'No'],
+ *    single_choice: [],
+ *    multiple_choice: []
  *  }
  *
  */
@@ -62,24 +74,32 @@ router.post('/create', acl(['*']), questionController.create);
  * and `per_page=<RESULTS_PER_PAGE>`.
  *
  * @apiSuccess {String} _id question id
- * @apiSuccess {String} title Question Title
+ * @apiSuccess {String} question_text Question Text Title
  * @apiSuccess {String} remark Question Remark
  * @apiSuccess {String} type Question Type ie _Yes/No_, _Fill In Blank_, or _Multiple Choice_
  * @apiSuccess {String} sub_questions Nested Sub Questions References
+ * @apiSuccess {Boolean} required Question required or not(true or false)
+ * @apiSuccess {Array} options Questions Options
+ * @apiSuccess {Array} single_choice Question Single Choice
+ * @apiSuccess {Array} multiple_choice Question Multiple Choice
  *
  * @apiSuccessExample Response Example:
  *  {
  *    "total_pages": 1,
  *    "total_docs_count": 0,
  *    "docs": [{
- *    _id : "556e1174a8952c9521286a60",
- *    title: "Question Title",
- *    remark: "This is a remark",
- *    type: "Yes/No",
- *    sub_questions: [{
- *		 _id : "556e1174a8952c9521286a60",
- *       ....
- *    }]
+ *    	_id : "556e1174a8952c9521286a60",
+ *    	question_text: "Question Text Title",
+ *    	remark: "This is a remark",
+ *    	type: "Yes/No",
+ *    	sub_questions: [{
+ *		 	_id : "556e1174a8952c9521286a60",
+ *       	....
+ *    	}],
+ *    	required: true
+ *    	options: ['Yes', 'No'],
+ *    	single_choice: [],
+ *    	multiple_choice: []
  *    }]
  *  }
  */
@@ -94,21 +114,29 @@ router.get('/paginate', acl(['*']), questionController.fetchAllByPagination);
  * @apiDescription Get a user question with the given id
  *
  * @apiSuccess {String} _id question id
- * @apiSuccess {String} title Question Title
+ * @apiSuccess {String} question_text Question Text Title
  * @apiSuccess {String} remark Question Remark
  * @apiSuccess {String} type Question Type ie _Yes/No_, _Fill In Blank_, or _Multiple Choice_
  * @apiSuccess {String} sub_questions Nested Sub Questions References
+ * @apiSuccess {Boolean} required Question required or not(true or false)
+ * @apiSuccess {Array} options Questions Options
+ * @apiSuccess {Array} single_choice Question Single Choice
+ * @apiSuccess {Array} multiple_choice Question Multiple Choice
  *
  * @apiSuccessExample Response Example:
  *  {
  *    _id : "556e1174a8952c9521286a60",
- *    title: "Question Title",
+ *    question_text: "Question Text Title",
  *    remark: "This is a remark",
  *    type: "Yes/No",
  *    sub_questions: [{
  *		 _id : "556e1174a8952c9521286a60",
  *       ....
- *    }]
+ *    }],
+ *    required: true
+ *    options: ['Yes', 'No'],
+ *    single_choice: [],
+ *    multiple_choice: []
  *  }
  *
  */
@@ -131,21 +159,29 @@ router.get('/:id', acl(['*']), questionController.fetchOne);
  * }
  *
  * @apiSuccess {String} _id question id
- * @apiSuccess {String} title Question Title
+ * @apiSuccess {String} question_text Question Text Title
  * @apiSuccess {String} remark Question Remark
  * @apiSuccess {String} type Question Type ie _Yes/No_, _Fill In Blank_, or _Multiple Choice_
  * @apiSuccess {String} sub_questions Nested Sub Questions References
+ * @apiSuccess {Boolean} required Question required or not(true or false)
+ * @apiSuccess {Array} options Questions Options
+ * @apiSuccess {Array} single_choice Question Single Choice
+ * @apiSuccess {Array} multiple_choice Question Multiple Choice
  *
  * @apiSuccessExample Response Example:
  *  {
  *    _id : "556e1174a8952c9521286a60",
- *    title: "Question Title",
+ *    question_text: "Question Text Title",
  *    remark: "This is a remark too",
  *    type: "Yes/No",
  *    sub_questions: [{
  *		 _id : "556e1174a8952c9521286a60",
  *       ....
- *    }]
+ *    }],
+ *    required: true
+ *    options: ['Yes', 'No'],
+ *    single_choice: [],
+ *    multiple_choice: []
  *  }
  */
 router.put('/:id', acl(['*']), questionController.update);
