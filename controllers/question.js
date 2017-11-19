@@ -35,7 +35,7 @@ exports.create = function* createQuestion(next) {
 
   let body = this.request.body;
 
-  this.checkBody('title')
+  this.checkBody('question_text')
       .notEmpty('Question Title is Empty');
 
   if(this.errors) {
