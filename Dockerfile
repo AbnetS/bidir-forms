@@ -1,4 +1,4 @@
-# Dockerfile for bidir Admin service
+# Dockerfile for bidir dev env't Forms service
 FROM node:8.8.1
 
 MAINTAINER Teferi Assefa <teferi.assefa@gmail.com>
