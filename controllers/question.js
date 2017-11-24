@@ -47,7 +47,7 @@ exports.create = function* createQuestion(next) {
 
   try {
 
-    let question = yield QuestionDal.get({ title: body.title });
+    let question = yield QuestionDal.get({ question_text: body.question_text });
     if(question) {
       throw new Error('Question with that title already exists!!');
     }
