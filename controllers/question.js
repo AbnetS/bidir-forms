@@ -37,6 +37,12 @@ exports.create = function* createQuestion(next) {
 
   this.checkBody('question_text')
       .notEmpty('Question Title is Empty');
+  this.checkBody('type')
+      .notEmpty('Question Type is Empty')
+      .isIn(['Yes/No', 'Fill In Blank', 'Multiple Choice'], 'Question Type should be Yes/No, Fill In Blank, or Multiple Choice');
+  this.checkBody('required')
+      .notEmpty('Question Required value is Empty')
+      .isIn([true, false], 'Question Required value should be true or false');
 
   if(this.errors) {
     return this.throw(new CustomError({
@@ -46,6 +52,14 @@ exports.create = function* createQuestion(next) {
   }
 
   try {
+
+    if(body.type === 'Fill In Blank' && body.options.length) {
+      throw new Error('Fill in Blank Questions Do not need options');
+    }
+
+    if(body.type === 'Multiple Choice' && !body.options.length) {
+      throw new Error('Multiple Choice Questions need options');
+    }
 
     let question = yield QuestionDal.get({ question_text: body.question_text });
     if(question) {
@@ -83,6 +97,10 @@ exports.fetchOne = function* fetchOneQuestion(next) {
 
   try {
     let question = yield QuestionDal.get(query);
+
+    if(!question || !question._id) {
+      throw new Error('Question Does not Exist!!');
+    }
 
     yield LogDal.track({
       event: 'view_question',
@@ -158,12 +176,23 @@ exports.update = function* updateQuestion(next) {
   let body = this.request.body;
 
   try {
-    let question = yield QuestionDal.update(query, body);
+    let question = yield QuestionDal.get(query);
+    if(!question || !question._id) {
+      throw new Error('Question Does not Exist!!');
+    }
+
+    if(body.options.length) {
+      if(question.type === 'Fill In Blank') {
+        throw new Error('Fill in Blank Questions Do not need options');
+      }
+    }
+
+    question = yield QuestionDal.update(query, body);
 
     yield LogDal.track({
       event: 'question_update',
       question: this.state._user._id ,
-      message: `Update Info for ${question.title}`,
+      message: `Update Info for ${question.question_text}`,
       diff: body
     });
 
