@@ -16,7 +16,11 @@ const mongoUpdate   = require('../lib/mongo-update');
 var returnFields = Form.attributes;
 var population = [{
   path: 'questions',
-  select: Question.attributes
+  select: Question.attributes,
+  populate: {
+    path: 'sub_questions',
+   select: Question.attributes,
+  }
 }];
 
 /**

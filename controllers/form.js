@@ -20,6 +20,7 @@ const CustomError        = require('../lib/custom-error');
 const TokenDal           = require('../dal/token');
 const FormDal          = require('../dal/form');
 const LogDal             = require('../dal/log');
+const QuestionDal      = require('../dal/question');
 
 
 /**
@@ -216,4 +217,52 @@ exports.fetchAllByPagination = function* fetchAllForms(next) {
       message: ex.message
     }));
   }
+};
+
+/**
+ * Remove a single form.
+ *
+ * @desc Fetch a form with the given id from the database
+ *       and Remove their data
+ *
+ * @param {Function} next Middleware dispatcher
+ */
+exports.remove = function* removeForm(next) {
+  debug(`removing screening: ${this.params.id}`);
+
+  let query = {
+    _id: this.params.id
+  };
+
+  try {
+    let form = yield FormDal.delete(query);
+    if(!form._id) {
+      throw new Error('Form Does Not Exist!');
+    }
+
+    for(let question of form.questions) {
+      question = yield QuestionDal.delete({ _id: question._id });
+      if(question.sub_question.length) {
+        for(let _question of question.sub_questions) {
+          yield QuestionDal.delete({ _id: _question._id });
+        }
+      }
+    }
+
+    yield LogDal.track({
+      event: 'form_delete',
+      permission: this.state._user._id ,
+      message: `Delete Info for ${form._id}`
+    });
+
+    this.body = form;
+
+  } catch(ex) {
+    return this.throw(new CustomError({
+      type: 'REMOVE_FORM_ERROR',
+      message: ex.message
+    }));
+
+  }
+
 };

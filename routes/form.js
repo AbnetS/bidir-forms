@@ -185,5 +185,41 @@ router.get('/:id', acl(['*']), formController.fetchOne);
  */
 router.put('/:id', acl(['*']), formController.update);
 
+/**
+ * @api {delete} /forms/:id Delete Form
+ * @apiVersion 1.0.0
+ * @apiName DeleteForm
+ * @apiGroup Form 
+ *
+ * @apiDescription Delete a Form form with the given id
+ *
+ *
+ * @apiSuccess {String} _id form id
+ * @apiSuccess {String} type Form Type ie Screening or Form Application
+ * @apiSuccess {String} description Form Description
+ * @apiSuccess {String} title Form Title
+ * @apiSuccess {String} process Form Process
+ * @apiSuccess {Array} questions Form Questions
+ * @apiSuccess {String} created_by Officer Account registering this
+ *
+ * @apiSuccessExample Response Example:
+ *  {
+ *    _id : "556e1174a8952c9521286a60",
+ *    type: "Screening",
+ *    description: "This is a Description",
+ *    title: "MFI Form Title",
+ *    process: "",
+ *    questions: ]{
+ *     _id : "556e1174a8952c9521286a60",
+ *       ....
+ *    }],
+ *    created_by: {
+ *     _id : "556e1174a8952c9521286a60",
+ *       ....
+ *    }
+ *  }
+ */
+router.delete('/:id', acl(['*']), formController.remove);
+
 // Expose Form Router
 module.exports = router;
