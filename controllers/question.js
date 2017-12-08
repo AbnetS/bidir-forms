@@ -53,11 +53,11 @@ exports.create = function* createQuestion(next) {
 
   try {
 
-    if(body.type === 'Fill In Blank' && body.options.length) {
+    if(body.type === 'Fill In Blank' && body.options) {
       throw new Error('Fill in Blank Questions Do not need options');
     }
 
-    if(body.type === 'Multiple Choice' && !body.options.length) {
+    if(body.type === 'Multiple Choice' && !body.options) {
       throw new Error('Multiple Choice Questions need options');
     }
 

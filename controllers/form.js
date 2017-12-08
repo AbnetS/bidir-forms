@@ -49,12 +49,10 @@ exports.create = function* createForm(next) {
   }
 
   try {
-
-    let form = yield FormDal.get({ title: body.title });
+    let form = yield FormDal.get({ title: body.title, process: body.process });
     if(form) {
-      throw new Error('Form with that title already exists!!');
+      throw new Error('Form with that title and process already exists!!');
     }
-
     // Create Form Type
     form = yield FormDal.create(body);
 
