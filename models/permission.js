@@ -13,7 +13,8 @@ var Schema = mongoose.Schema;
 
 var PermissionSchema = new Schema({       
     name:           { type: String, required: true },
-    description:    { type: String }, 
+    description:    { type: String },
+    entity:         { type: String, required: true },
     module:         { 
       type: String, 
       enums:[enums.MODULES.MFI_SETUP,enums.MODULES.USER_MANAGEMENT]
@@ -58,6 +59,7 @@ PermissionSchema.statics.whitelist = {
   module: 1,
   operations: 1,
   endpoints: 1,
+  entity: 1,
   date_created: 1,
   last_modified: 1,
   _id: 1

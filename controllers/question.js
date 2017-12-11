@@ -225,7 +225,7 @@ exports.fetchAllByPagination = function* fetchAllQuestions(next) {
 
   let sortType = this.query.sort_by;
   let sort = {};
-  sortType ? (sort[sortType] = 1) : null;
+  sortType ? (sort[sortType] = -1) : (sort.date_created = -1 );
 
   let opts = {
     page: +page,
@@ -239,7 +239,7 @@ exports.fetchAllByPagination = function* fetchAllQuestions(next) {
     this.body = questions;
   } catch(ex) {
     return this.throw(new CustomError({
-      type: 'FETCH_PAGINATED_QUESTIONS_COLLECTION_ERROR',
+      type: 'FETCH_QUESTIONS_COLLECTION_ERROR',
       message: ex.message
     }));
   }
