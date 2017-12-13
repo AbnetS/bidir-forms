@@ -12,7 +12,7 @@ var enums     = require ('../lib/enums');
 var Schema = mongoose.Schema;
 
 var FormSchema = new Schema({       
-    type:           { type: String, enum: ['Screening', 'Form Application'] },
+    type:           { type: String, enum: ['Screening', 'Loan Application'] },
     description:    { type: String, default: '' },
     title:          { type: String, default: '' },
     process:        { type: String, default: '' },

@@ -47,7 +47,8 @@ exports.create = function* createForm(next) {
   let body = this.request.body;
 
   this.checkBody('type')
-      .notEmpty('Form Type is Empty');
+      .notEmpty('Form Type is Empty')
+      .isIn(['Screening', 'Loan Application', 'Group Application', 'ACAT'], 'Accepted Form Types are Screening, Loan Application, Group Application and ACAT');
   this.checkBody('title')
       .notEmpty('Form Title is Empty');
 
