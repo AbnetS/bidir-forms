@@ -9,6 +9,7 @@ const debug  = require('debug')('api:app-router');
 const rootRouter          = require('./root');
 const formRouter      = require('./form');
 const questionRouter      = require('./question');
+const sectionRouter      = require('./section');
 
 var appRouter = new Router();
 
@@ -24,8 +25,10 @@ appRouter.OPEN_ENDPOINTS = OPEN_ENDPOINTS;
 composeRoute('', rootRouter);
 //Add clients Router
 composeRoute('forms', formRouter);
-//Add clients Router
+//Add questions Router
 composeRoute('forms/questions', questionRouter);
+//Add sections Router
+composeRoute('forms/sections', sectionRouter);
 
 function composeRoute(endpoint, router){
   appRouter.use(`/${endpoint}`, router.routes(), router.allowedMethods());

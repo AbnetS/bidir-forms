@@ -17,6 +17,7 @@ const validator  = require('validator');
 const config             = require('../config');
 const CustomError        = require('../lib/custom-error');
 const checkPermissions   = require('../lib/permissions');
+const FORM     = require ('../lib/enums').FORM
 
 const TokenDal           = require('../dal/token');
 const FormDal          = require('../dal/form');
@@ -48,9 +49,12 @@ exports.create = function* createForm(next) {
 
   this.checkBody('type')
       .notEmpty('Form Type is Empty')
-      .isIn(['Screening', 'Loan Application', 'Group Application', 'ACAT'], 'Accepted Form Types are Screening, Loan Application, Group Application and ACAT');
+      .isIn(FORM.TYPES, `Accepted Form Types are ${FORM.TYPES.join(',')}`);
   this.checkBody('title')
       .notEmpty('Form Title is Empty');
+  this.checkBody('layout')
+      .empty('Form Layout is Empty')
+      .isIn(FORM.LAYOUTS, `Accepted Form Layouts are ${FORM.LAYOUTS.join(',')}`);
 
   if(this.errors) {
     return this.throw(new CustomError({
@@ -64,6 +68,9 @@ exports.create = function* createForm(next) {
     if(form) {
       throw new Error('Form For that type already exists!!');
     }
+
+    body.created_by = this.state._user._id;
+
     // Create Form Type
     form = yield FormDal.create(body);
 
@@ -140,10 +147,25 @@ exports.update = function* updateForm(next) {
     }));
   }
 
+
   let query = {
     _id: this.params.id
   };
   let body = this.request.body;
+
+  this.checkBody('type')
+      .empty('Form Type is Empty')
+      .isIn(FORM.TYPES, `Accepted Form Types are ${FORM.TYPES.join(',')}`);
+  this.checkBody('layout')
+      .empty('Form Layout is Empty')
+      .isIn(FORM.LAYOUTS, `Accepted Form Layouts are ${FORM.LAYOUTS.join(',')}`);
+
+  if(this.errors) {
+    return this.throw(new CustomError({
+      type: 'UPDATE_FORM_ERROR',
+      message: JSON.stringify(this.errors)
+    }));
+  }
 
   try {
     let form = yield FormDal.update(query, body);

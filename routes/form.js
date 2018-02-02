@@ -19,38 +19,37 @@ var router  = Router();
  *
  * @apiDescription Create new Form. 
  *
- * @apiParam {String} type Form Type ie Screening or Form Application
- * @apiParam {String} description Form Description
+ * @apiParam {String} type Form Type ie SCREENING or LOAN_APPLICATION
+ * @apiParam {String} subtitle Form Subtitle
+ * @apiParam {String} purpose Form Purpose
  * @apiParam {String} title Form Title
- * @apiParam {String} process Form Process
- * @apiParam {Array} questions Form Questions
- * @apiParam {String} created_by Officer Account registering this
  *
  * @apiParamExample Request Example:
  *  {
- *    type: "Screening",
- *    description: "This is a Description",
- *    title: "Form Title",
- *    process: "",
- *    questions : ["556e1174a8952c9521286a60"],
- *    created_by : "556e1174a8952c9521286a60"
+ *    type: "SCREENING",
+ *    subtitle: "Subtitle",
+ *    title: "Title",
+ *    purpose: "To Vet Clients",
  *  }
  *
  * @apiSuccess {String} _id form id
- * @apiSuccess {String} type Form Type ie Screening or Form Application
- * @apiSuccess {String} description Form Description
+ * @apiSuccess {String} type Form Type ie SCREENING or LOAN_APPLICATION
+ * @apiSuccess {String} subtitle Form Subtitle
  * @apiSuccess {String} title Form Title
- * @apiSuccess {String} process Form Process
+ * @apiSuccess {String} purpose Form Purpose
  * @apiSuccess {Array} questions Form Questions
+ * @apiSuccess {String} layout Form Layout ie TWO_COLUMNS or THREE_COLUMNS 
  * @apiSuccess {String} created_by Officer Account registering this
+ * @apiSuccess {Array} sections Form Sections
+ * @apiSuccess {Boolean} has_sections If Form has Sections
  *
  * @apiSuccessExample Response Example:
  *  {
  *    _id : "556e1174a8952c9521286a60",
- *    type: "Screening",
- *    description: "This is a Description",
- *    title: "Form Title",
- *    process: "",
+ *    type: "SCREENING",
+ *    subtitle: "Subtitle",
+ *    title: "Title",
+ *    purpose: "To Vet Clients",
  *    questions: ]{
  *		 _id : "556e1174a8952c9521286a60",
  *       ....
@@ -58,7 +57,10 @@ var router  = Router();
  *    created_by: {
  *		 _id : "556e1174a8952c9521286a60",
  *       ....
- *    }
+ *    },
+ *    has_sections: false,
+ *    sections: [],
+ *    layout: 'TWO_COLUMNS'
  *  }
  *
  */
@@ -76,31 +78,37 @@ router.post('/create', acl(['*']), formController.create);
  * and `per_page=<RESULTS_PER_PAGE>`.
  *
  * @apiSuccess {String} _id form id
- * @apiSuccess {String} type Form Type ie Screening or Form Application
- * @apiSuccess {String} description Form Description
+ * @apiSuccess {String} type Form Type ie SCREENING or LOAN_APPLICATION
+ * @apiSuccess {String} subtitle Form Subtitle
  * @apiSuccess {String} title Form Title
- * @apiSuccess {String} process Form Process
+ * @apiSuccess {String} purpose Form Purpose
  * @apiSuccess {Array} questions Form Questions
+ * @apiSuccess {String} layout Form Layout ie TWO_COLUMNS or THREE_COLUMNS 
  * @apiSuccess {String} created_by Officer Account registering this
+ * @apiSuccess {Array} sections Form Sections
+ * @apiSuccess {Boolean} has_sections If Form has Sections
  *
  * @apiSuccessExample Response Example:
  *  {
  *    "total_pages": 1,
  *    "total_docs_count": 0,
  *    "docs": [{
- *    _id : "556e1174a8952c9521286a60",
- *    type: "Screening",
- *    description: "This is a Description",
- *    title: "Form Title",
- *    process: "",
- *    questions: ]{
- *		 _id : "556e1174a8952c9521286a60",
- *       ....
- *    }],
- *    created_by: {
- *		 _id : "556e1174a8952c9521286a60",
- *       ....
- *    }
+ *      _id : "556e1174a8952c9521286a60",
+ *      type: "SCREENING",
+ *      subtitle: "Subtitle",
+ *      title: "Title",
+ *      purpose: "To Vet Clients",
+ *      questions: ]{
+ *        _id : "556e1174a8952c9521286a60",
+ *        ....
+ *      }],
+ *      created_by: {
+ *        _id : "556e1174a8952c9521286a60",
+ *        ....
+ *      },
+ *      has_sections: false,
+ *      sections: [],
+ *      layout: 'TWO_COLUMNS'
  *    }]
  *  }
  */
@@ -115,29 +123,36 @@ router.get('/paginate', acl(['*']), formController.fetchAllByPagination);
  * @apiDescription Get a user form with the given id
  *
  * @apiSuccess {String} _id form id
- * @apiSuccess {String} type Form Type ie Screening or Form Application
- * @apiSuccess {String} description Form Description
+ * @apiSuccess {String} type Form Type ie SCREENING or LOAN_APPLICATION
+ * @apiSuccess {String} subtitle Form Subtitle
  * @apiSuccess {String} title Form Title
- * @apiSuccess {String} process Form Process
+ * @apiSuccess {String} purpose Form Purpose
  * @apiSuccess {Array} questions Form Questions
+ * @apiSuccess {String} layout Form Layout ie TWO_COLUMNS or THREE_COLUMNS 
  * @apiSuccess {String} created_by Officer Account registering this
+ * @apiSuccess {Array} sections Form Sections
+ * @apiSuccess {Boolean} has_sections If Form has Sections
  *
  * @apiSuccessExample Response Example:
  *  {
  *    _id : "556e1174a8952c9521286a60",
- *    type: "Screening",
- *    description: "This is a Description",
- *    title: "Form Title",
- *    process: "",
+  *    type: "SCREENING",
+ *    subtitle: "Subtitle",
+ *    title: "Title",
+ *    purpose: "To Vet Clients",
  *    questions: ]{
- *		 _id : "556e1174a8952c9521286a60",
+ *     _id : "556e1174a8952c9521286a60",
  *       ....
  *    }],
  *    created_by: {
- *		 _id : "556e1174a8952c9521286a60",
+ *     _id : "556e1174a8952c9521286a60",
  *       ....
- *    }
+ *    },
+ *    has_sections: false,
+ *    sections: [],
+ *    layout: 'TWO_COLUMNS'
  *  }
+ *
  *
  */
 router.get('/:id', acl(['*']), formController.fetchOne);
@@ -155,33 +170,40 @@ router.get('/:id', acl(['*']), formController.fetchOne);
  *
  * @apiParamExample Request example:
  * {
- *    title: "MFI Form Title"
+ *    title: "Form Title"
  * }
  *
  * @apiSuccess {String} _id form id
- * @apiSuccess {String} type Form Type ie Screening or Form Application
- * @apiSuccess {String} description Form Description
+ * @apiSuccess {String} type Form Type ie SCREENING or LOAN_APPLICATION
+ * @apiSuccess {String} subtitle Form Subtitle
  * @apiSuccess {String} title Form Title
- * @apiSuccess {String} process Form Process
+ * @apiSuccess {String} purpose Form Purpose
  * @apiSuccess {Array} questions Form Questions
+ * @apiSuccess {String} layout Form Layout ie TWO_COLUMNS or THREE_COLUMNS 
  * @apiSuccess {String} created_by Officer Account registering this
+ * @apiSuccess {Array} sections Form Sections
+ * @apiSuccess {Boolean} has_sections If Form has Sections
  *
  * @apiSuccessExample Response Example:
  *  {
  *    _id : "556e1174a8952c9521286a60",
- *    type: "Screening",
- *    description: "This is a Description",
- *    title: "MFI Form Title",
- *    process: "",
+  *    type: "SCREENING",
+ *    subtitle: "Subtitle",
+ *    title: "Form Title",
+ *    purpose: "To Vet Clients",
  *    questions: ]{
- *		 _id : "556e1174a8952c9521286a60",
+ *     _id : "556e1174a8952c9521286a60",
  *       ....
  *    }],
  *    created_by: {
- *		 _id : "556e1174a8952c9521286a60",
+ *     _id : "556e1174a8952c9521286a60",
  *       ....
- *    }
+ *    },
+ *    has_sections: false,
+ *    sections: [],
+ *    layout: 'TWO_COLUMNS'
  *  }
+ *
  */
 router.put('/:id', acl(['*']), formController.update);
 
@@ -195,20 +217,23 @@ router.put('/:id', acl(['*']), formController.update);
  *
  *
  * @apiSuccess {String} _id form id
- * @apiSuccess {String} type Form Type ie Screening or Form Application
- * @apiSuccess {String} description Form Description
+ * @apiSuccess {String} type Form Type ie SCREENING or LOAN_APPLICATION
+ * @apiSuccess {String} subtitle Form Subtitle
  * @apiSuccess {String} title Form Title
- * @apiSuccess {String} process Form Process
+ * @apiSuccess {String} purpose Form Purpose
  * @apiSuccess {Array} questions Form Questions
+ * @apiSuccess {String} layout Form Layout ie TWO_COLUMNS or THREE_COLUMNS 
  * @apiSuccess {String} created_by Officer Account registering this
+ * @apiSuccess {Array} sections Form Sections
+ * @apiSuccess {Boolean} has_sections If Form has Sections
  *
  * @apiSuccessExample Response Example:
  *  {
  *    _id : "556e1174a8952c9521286a60",
- *    type: "Screening",
- *    description: "This is a Description",
- *    title: "MFI Form Title",
- *    process: "",
+  *    type: "SCREENING",
+ *    subtitle: "Subtitle",
+ *    title: "Title",
+ *    purpose: "To Vet Clients",
  *    questions: ]{
  *     _id : "556e1174a8952c9521286a60",
  *       ....
@@ -216,8 +241,12 @@ router.put('/:id', acl(['*']), formController.update);
  *    created_by: {
  *     _id : "556e1174a8952c9521286a60",
  *       ....
- *    }
+ *    },
+ *    has_sections: false,
+ *    sections: [],
+ *    layout: 'TWO_COLUMNS'
  *  }
+ *
  */
 router.delete('/:id', acl(['*']), formController.remove);
 

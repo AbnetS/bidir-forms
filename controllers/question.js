@@ -16,14 +16,18 @@ const validator  = require('validator');
 
 const config             = require('../config');
 const CustomError        = require('../lib/custom-error');
+const QUESTION           = require('../lib/enums').QUESTION;
+
+const Form              = require('../models/form');
 
 const TokenDal           = require('../dal/token');
-const QuestionDal          = require('../dal/question');
+const QuestionDal        = require('../dal/question');
 const LogDal             = require('../dal/log');
+const FormDal            = require('../dal/form');
 
 
 /**
- * Create a question.
+ * Create a  question.
  *
  * @desc create a question using basic Authentication or Social Media
  *
@@ -35,14 +39,11 @@ exports.create = function* createQuestion(next) {
 
   let body = this.request.body;
 
-  this.checkBody('question_text')
-      .notEmpty('Question Title is Empty');
   this.checkBody('type')
       .notEmpty('Question Type is Empty')
-      .isIn(['Yes/No', 'Fill In Blank', 'Multiple Choice'], 'Question Type should be Yes/No, Fill In Blank, or Multiple Choice');
-  this.checkBody('required')
-      .notEmpty('Question Required value is Empty')
-      .isIn([true, false], 'Question Required value should be true or false');
+      .isIn(QUESTION.TYPES, `Question Type should be ${QUESTION.TYPES.join(',')}`);
+  this.checkBody('form')
+      .notEmpty('Form Reference is Empty');
 
   if(this.errors) {
     return this.throw(new CustomError({
@@ -52,13 +53,9 @@ exports.create = function* createQuestion(next) {
   }
 
   try {
-
-    if(body.type === 'Fill In Blank' && body.options) {
-      throw new Error('Fill in Blank Questions Do not need options');
-    }
-
-    if(body.type === 'Multiple Choice' && !body.options) {
-      throw new Error('Multiple Choice Questions need options');
+    let form = yield Form.findOne({ _id: body.form }).exec();
+    if(!form) {
+      throw new Error('Question Form Does Not Exist')
     }
 
     let question = yield QuestionDal.get({ question_text: body.question_text });
@@ -69,9 +66,21 @@ exports.create = function* createQuestion(next) {
     // Create Question Type
     question = yield QuestionDal.create(body);
 
+    form = form.toJSON();
+
+    let questions = form.questions.slice();
+
+    questions.push(question._id);
+
+    yield FormDal.update({ _id: form._id },{
+      questions: questions
+    });
+
+
     this.body = question;
 
   } catch(ex) {
+    console.log(ex)
     this.throw(new CustomError({
       type: 'QUESTION_CREATION_ERROR',
       message: ex.message
@@ -80,6 +89,382 @@ exports.create = function* createQuestion(next) {
 
 };
 
+/**
+ * Create a Grouped question.
+ *
+ * @desc create a Grouped question 
+ *
+ * @param {Function} next Middleware dispatcher
+ *
+ */
+exports.createGrouped = function* createGroupedQuestion(next) {
+  debug('create Grouped question');
+
+  let body = this.request.body;
+
+  this.checkBody('question_text')
+      .notEmpty('Question Title is Empty');
+  this.checkBody('validation_factor')
+      .empty('Question Validation Factor is Empty')
+      .isIn(QUESTION.VALIDATION, `Question Type should be ${QUESTION.VALIDATION.join(',')}`);
+  this.checkBody('measurement_unit')
+      .empty('Measurement Unit is Empty');
+  this.checkBody('required')
+      .notEmpty('Question Mandatory value is empty')
+      .toBoolean('Required Value is not a boolean value');
+  this.checkBody('remark')
+      .notEmpty('Question Remark is empty');
+  this.checkBody('show')
+      .notEmpty('Show Question value is empty')
+      .toBoolean('Show Value is not a boolean value');
+  this.checkBody('form')
+      .notEmpty('Form Reference is Empty');
+
+  if(this.errors) {
+    return this.throw(new CustomError({
+      type: 'CREATE_GROUPED_QUESTION_ERROR',
+      message: JSON.stringify(this.errors)
+    }));
+  }
+
+  try {
+
+    let form = yield Form.findOne({ _id: body.form }).exec();
+    if(!form) {
+      throw new Error('Question Form Does Not Exist')
+    }
+
+    if(body.options) {
+      throw new Error('Fill in Blank Questions Do not need options');
+    }
+
+    body.type = 'GROUPED';
+
+    let question = yield QuestionDal.get({ question_text: body.question_text });
+    if(question) {
+      throw new Error('Question with that title already exists!!');
+    }
+
+    // Create Question Type
+    question = yield QuestionDal.create(body);
+
+    form = form.toJSON();
+
+    let questions = form.questions.slice();
+
+    questions.push(question._id);
+
+    yield FormDal.update({ _id: form._id },{
+      questions: questions
+    });
+
+    this.body = question;
+
+  } catch(ex) {
+    this.throw(new CustomError({
+      type: 'CREATE_GROUPED_QUESTION_ERROR',
+      message: ex.message
+    }));
+  }
+
+};
+
+/**
+ * Create a FIB question.
+ *
+ * @desc create a FIB question
+ *
+ * @param {Function} next Middleware dispatcher
+ *
+ */
+exports.createFIB = function* createFIBQuestion(next) {
+  debug('create Fill In Blanks question');
+
+  let body = this.request.body;
+
+  this.checkBody('question_text')
+      .notEmpty('Question Title is Empty');
+  this.checkBody('validation_factor')
+      .empty('Question Validation Factor is Empty')
+      .isIn(QUESTION.VALIDATION, `Question Type should be ${QUESTION.VALIDATION.join(',')}`);
+  this.checkBody('measurement_unit')
+      .empty('Measurement Unit is Empty');
+  this.checkBody('required')
+      .notEmpty('Question Mandatory value is empty')
+      .toBoolean('Required Value is not a boolean value');
+  this.checkBody('remark')
+      .notEmpty('Question Remark is empty');
+  this.checkBody('show')
+      .notEmpty('Show Question value is empty')
+      .toBoolean('Show Value is not a boolean value');
+  this.checkBody('form')
+      .notEmpty('Form Reference is Empty');
+
+  if(this.errors) {
+    return this.throw(new CustomError({
+      type: 'CREATE_FIB_QUESTION_ERROR',
+      message: JSON.stringify(this.errors)
+    }));
+  }
+
+  try {
+
+    let form = yield Form.findOne({ _id: body.form }).exec();
+    if(!form) {
+      throw new Error('Question Form Does Not Exist')
+    }
+
+    if(body.options) {
+      throw new Error('Fill in Blank Questions Do not need options');
+    }
+
+    body.type = 'FILL_IN_BLANK';
+
+    let question = yield QuestionDal.get({ question_text: body.question_text });
+    if(question) {
+      throw new Error('Question with that title already exists!!');
+    }
+
+    // Create Question Type
+    question = yield QuestionDal.create(body);
+
+    form = form.toJSON();
+
+    let questions = form.questions.slice();
+
+    questions.push(question._id);
+
+    yield FormDal.update({ _id: form._id },{
+      questions: questions
+    });
+
+    this.body = question;
+
+  } catch(ex) {
+    this.throw(new CustomError({
+      type: 'CREATE_FIB_QUESTION_ERROR',
+      message: ex.message
+    }));
+  }
+
+};
+
+/**
+ * Create a Multiple Choice question.
+ *
+ * @desc create a Multiple Choice question
+ *
+ * @param {Function} next Middleware dispatcher
+ *
+ */
+exports.createMC = function* createMultipleChoiceQuestion(next) {
+  debug('create Multiple Choice question');
+
+  let body = this.request.body;
+
+  this.checkBody('question_text')
+      .notEmpty('Question Title is Empty');
+  this.checkBody('required')
+      .empty('Question Mandatory value is empty')
+      .toBoolean('Required Value is not a boolean value');
+  this.checkBody('remark')
+      .empty('Question Remark is empty');
+  this.checkBody('options')
+      .notEmpty('Question Options is empty');
+  this.checkBody('show')
+      .notEmpty('Show Question value is empty')
+      .toBoolean('Show Value is not a boolean value');
+  this.checkBody('form')
+      .notEmpty('Form Reference is Empty');
+
+  if(this.errors) {
+    return this.throw(new CustomError({
+      type: 'CREATE_MC_QUESTION_ERROR',
+      message: JSON.stringify(this.errors)
+    }));
+  }
+
+  try {
+
+    let form = yield Form.findOne({ _id: body.form }).exec();
+    if(!form) {
+      throw new Error('Question Form Does Not Exist')
+    }
+
+    body.type = 'MULTIPLE_CHOICE';
+
+    let question = yield QuestionDal.get({ question_text: body.question_text });
+    if(question) {
+      throw new Error('Question with that title already exists!!');
+    }
+
+    // Create Question Type
+    question = yield QuestionDal.create(body);
+
+    form = form.toJSON();
+
+    let questions = form.questions.slice();
+
+    questions.push(question._id);
+
+    yield FormDal.update({ _id: form._id },{
+      questions: questions
+    });
+
+    this.body = question;
+
+  } catch(ex) {
+    this.throw(new CustomError({
+      type: 'CREATE_MC_QUESTION_ERROR',
+      message: ex.message
+    }));
+  }
+
+};
+
+/**
+ * Create a Single Choice question.
+ *
+ * @desc create a Single Choice question 
+ *
+ * @param {Function} next Middleware dispatcher
+ *
+ */
+exports.createSC = function* createSingleChoiceQuestion(next) {
+  debug('create Single Choice question');
+
+  let body = this.request.body;
+
+  this.checkBody('question_text')
+      .notEmpty('Question Title is Empty');
+  this.checkBody('required')
+      .empty('Question Mandatory value is empty')
+      .toBoolean('Required Value is not a boolean value');
+  this.checkBody('remark')
+      .empty('Question Remark is empty');
+  this.checkBody('options')
+      .notEmpty('Question Options is empty');
+  this.checkBody('show')
+      .notEmpty('Show Question value is empty')
+      .toBoolean('Show Value is not a boolean value');
+  this.checkBody('form')
+      .notEmpty('Form Reference is Empty');
+
+  if(this.errors) {
+    return this.throw(new CustomError({
+      type: 'CREATE_SC_QUESTION_ERROR',
+      message: JSON.stringify(this.errors)
+    }));
+  }
+
+  try {
+
+    let form = yield Form.findOne({ _id: body.form }).exec();
+    if(!form) {
+      throw new Error('Question Form Does Not Exist')
+    }
+
+    body.type = 'SINGLE_CHOICE';
+
+    let question = yield QuestionDal.get({ question_text: body.question_text });
+    if(question) {
+      throw new Error('Question with that title already exists!!');
+    }
+
+    // Create Question Type
+    question = yield QuestionDal.create(body);
+
+    form = form.toJSON();
+
+    let questions = form.questions.slice();
+
+    questions.push(question._id);
+
+    yield FormDal.update({ _id: form._id },{
+      questions: questions
+    });
+
+    this.body = question;
+
+  } catch(ex) {
+    this.throw(new CustomError({
+      type: 'CREATE_SC_QUESTION_ERROR',
+      message: ex.message
+    }));
+  }
+
+};
+
+/**
+ * Create a Yes/No question.
+ *
+ * @desc create a Yes/No Choice question 
+ *
+ * @param {Function} next Middleware dispatcher
+ *
+ */
+exports.createYN = function* createYNQuestion(next) {
+  debug('create Yes/No question');
+
+  let body = this.request.body;
+
+  this.checkBody('question_text')
+      .notEmpty('Question Title is Empty');
+  this.checkBody('required')
+      .empty('Question Mandatory value is empty')
+      .toBoolean('Required Value is not a boolean value');
+  this.checkBody('remark')
+      .empty('Question Remark is empty');
+  this.checkBody('show')
+      .notEmpty('Show Question value is empty')
+      .toBoolean('Show Value is not a boolean value');
+  this.checkBody('form')
+      .notEmpty('Form Reference is Empty');
+
+  if(this.errors) {
+    return this.throw(new CustomError({
+      type: 'CREATE_SC_QUESTION_ERROR',
+      message: JSON.stringify(this.errors)
+    }));
+  }
+
+  try {
+
+    let form = yield Form.findOne({ _id: body.form }).exec();
+    if(!form) {
+      throw new Error('Question Form Does Not Exist')
+    }
+
+    body.type = 'YES_NO';
+
+    let question = yield QuestionDal.get({ question_text: body.question_text });
+    if(question) {
+      throw new Error('Question with that title already exists!!');
+    }
+
+    // Create Question Type
+    question = yield QuestionDal.create(body);
+
+    form = form.toJSON();
+
+   let questions = form.questions.slice();
+
+    questions.push(question._id);
+
+    yield FormDal.update({ _id: form._id },{
+      questions: questions
+    });
+
+    this.body = question;
+
+  } catch(ex) {
+    this.throw(new CustomError({
+      type: 'CREATE_YN_QUESTION_ERROR',
+      message: ex.message
+    }));
+  }
+
+};
 
 /**
  * Get a single question.
@@ -119,45 +504,6 @@ exports.fetchOne = function* fetchOneQuestion(next) {
 
 };
 
-/**
- * Update Question Status
- *
- * @desc Fetch a question with the given ID and update their respective status.
- *
- * @param {Function} next Middleware dispatcher
- */
-exports.updateStatus = function* updateQuestion(next) {
-  debug(`updating status question: ${this.params.id}`);
-
-  this.checkBody('is_active')
-      .notEmpty('is_active should not be empty');
-
-  let query = {
-    _id: this.params.id
-  };
-  let body = this.request.body;
-
-  try {
-    let question = yield QuestionDal.update(query, body);
-
-    yield LogDal.track({
-      event: 'question_status_update',
-      question: this.state._user._id ,
-      message: `Update Status for ${question.title}`,
-      diff: body
-    });
-
-    this.body = question;
-
-  } catch(ex) {
-    return this.throw(new CustomError({
-      type: 'QUESTION_STATUS_UPDATE_ERROR',
-      message: ex.message
-    }));
-
-  }
-
-};
 
 /**
  * Update a single question.
@@ -179,12 +525,6 @@ exports.update = function* updateQuestion(next) {
     let question = yield QuestionDal.get(query);
     if(!question || !question._id) {
       throw new Error('Question Does not Exist!!');
-    }
-
-    if(body.options.length) {
-      if(question.type === 'Fill In Blank') {
-        throw new Error('Fill in Blank Questions Do not need options');
-      }
     }
 
     question = yield QuestionDal.update(query, body);
