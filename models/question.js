@@ -22,7 +22,10 @@ var QuestionSchema = new Schema({
     sub_questions:      [{ type: Schema.Types.ObjectId, ref: 'Question'}],
     values:             [{ type: String, default: '' }],
     show:               { type: Boolean, default: true },
-    prerequisites:      [{ type: Schema.Types.ObjectId, ref: 'Question'}],
+    prerequisites:      [{
+      answer:   { type: String },
+      question: { type: Schema.Types.ObjectId, ref: 'Question' }
+    }],
     date_created:       { type: Date },
     last_modified:      { type: Date }
 });

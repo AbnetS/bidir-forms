@@ -428,7 +428,10 @@ router.get('/paginate', acl(['*']), questionController.fetchAllByPagination);
  *    options: ['Yes', 'No'],
  *    value: '',
  *    show: true,
- *    prerequisities: [],
+ *    prerequisities: [{
+ *      answer: 'Answer Value',
+ *      question: "556e1174a8952c9521286a60"
+ *    }],
  *    validation_factor: "NONE",
  *    measurement_unit: ""
  *  }
