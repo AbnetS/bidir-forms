@@ -19,11 +19,13 @@ const CustomError        = require('../lib/custom-error');
 const QUESTION           = require('../lib/enums').QUESTION;
 
 const Form              = require('../models/form');
+const Section           = require('../models/section');
 
 const TokenDal           = require('../dal/token');
 const QuestionDal        = require('../dal/question');
 const LogDal             = require('../dal/log');
 const FormDal            = require('../dal/form');
+const SectionDal         = require('../dal/section');
 
 
 /**
@@ -62,6 +64,8 @@ exports.create = function* createQuestion(next) {
     if(question) {
       throw new Error('Question with that title already exists!!');
     }
+
+    if(!body.show && !body.prerequisites) throw new Error('Question Requires Prerequisites');
 
     // Create Question Type
     question = yield QuestionDal.create(body);
@@ -134,16 +138,18 @@ exports.createGrouped = function* createGroupedQuestion(next) {
       throw new Error('Question Form Does Not Exist')
     }
 
-    if(body.options) {
-      throw new Error('Fill in Blank Questions Do not need options');
-    }
-
-    body.type = 'GROUPED';
-
     let question = yield QuestionDal.get({ question_text: body.question_text });
     if(question) {
       throw new Error('Question with that title already exists!!');
     }
+
+    if(body.options) {
+      throw new Error('Fill in Blank Questions Do not need options');
+    }
+
+    if(!body.show && !body.prerequisites) throw new Error('Question Requires Prerequisites');
+
+    body.type = 'GROUPED';
 
     // Create Question Type
     question = yield QuestionDal.create(body);
@@ -214,16 +220,19 @@ exports.createFIB = function* createFIBQuestion(next) {
       throw new Error('Question Form Does Not Exist')
     }
 
-    if(body.options) {
-      throw new Error('Fill in Blank Questions Do not need options');
-    }
-
-    body.type = 'FILL_IN_BLANK';
-
     let question = yield QuestionDal.get({ question_text: body.question_text });
     if(question) {
       throw new Error('Question with that title already exists!!');
     }
+
+    if(body.options) {
+      throw new Error('Fill in Blank Questions Do not need options');
+    }
+
+    if(!body.show && !body.prerequisites) throw new Error('Question Requires Prerequisites');
+
+    body.type = 'FILL_IN_BLANK';
+
 
     // Create Question Type
     question = yield QuestionDal.create(body);
@@ -291,12 +300,14 @@ exports.createMC = function* createMultipleChoiceQuestion(next) {
       throw new Error('Question Form Does Not Exist')
     }
 
-    body.type = 'MULTIPLE_CHOICE';
-
     let question = yield QuestionDal.get({ question_text: body.question_text });
     if(question) {
       throw new Error('Question with that title already exists!!');
     }
+
+    if(!body.show && !body.prerequisites) throw new Error('Question Requires Prerequisites');
+
+    body.type = 'MULTIPLE_CHOICE';
 
     // Create Question Type
     question = yield QuestionDal.create(body);
@@ -364,13 +375,15 @@ exports.createSC = function* createSingleChoiceQuestion(next) {
       throw new Error('Question Form Does Not Exist')
     }
 
-    body.type = 'SINGLE_CHOICE';
-
     let question = yield QuestionDal.get({ question_text: body.question_text });
     if(question) {
       throw new Error('Question with that title already exists!!');
     }
 
+    if(!body.show && !body.prerequisites) throw new Error('Question Requires Prerequisites');
+
+    body.type = 'SINGLE_CHOICE';
+    
     // Create Question Type
     question = yield QuestionDal.create(body);
 
@@ -435,12 +448,14 @@ exports.createYN = function* createYNQuestion(next) {
       throw new Error('Question Form Does Not Exist')
     }
 
-    body.type = 'YES_NO';
-
     let question = yield QuestionDal.get({ question_text: body.question_text });
     if(question) {
       throw new Error('Question with that title already exists!!');
     }
+
+    if(!body.show && !body.prerequisites) throw new Error('Question Requires Prerequisites');
+
+    body.type = 'YES_NO';
 
     // Create Question Type
     question = yield QuestionDal.create(body);
@@ -583,4 +598,78 @@ exports.fetchAllByPagination = function* fetchAllQuestions(next) {
       message: ex.message
     }));
   }
+};
+
+/**
+ * Remove a single question.
+ *
+ * @desc Fetch a question with the given id from the database
+ *       and remove their data
+ *
+ * @param {Function} next Middleware dispatcher
+ */
+exports.remove = function* removeQuestion(next) {
+  debug(`removing question: ${this.params.id}`);
+
+  let query = {
+    _id: this.params.id
+  };
+  let body = this.request.body;
+
+  try {
+    let form = yield Form.findOne({ _id: body.form }).exec();
+    if(!form) {
+      throw new Error(' Form Does Not Exist')
+    }
+
+    let question = yield QuestionDal.get(query);
+    if(!question) {
+      throw new Error('Question Does not Exist!!');
+    }
+
+    question = yield QuestionDal.delete(query);
+
+    form = form.toJSON();
+
+    // Remove from Form
+    let questions = form.questions.slice();
+
+    _.pull(questions, question._id);
+
+    yield FormDal.update({ _id: form._id },{
+      questions: questions
+    });
+
+    // Remove from sections
+
+    let sections = form.sections.slice();
+
+    for(let section of sections) {
+      // Remove from Form
+      section = yield Section.findOne({ _id: section }).exec();
+
+      let questions = section.questions.slice();
+
+      _.pull(questions, question._id);
+
+      yield SectionDal.update({ _id: section },{ questions: question })
+    }
+
+    yield LogDal.track({
+      event: 'question_remove',
+      question: this.state._user._id ,
+      message: `Remove question with title ${question.question_text}`,
+      diff: body
+    });
+
+    this.body = question;
+
+  } catch(ex) {
+    return this.throw(new CustomError({
+      type: 'REMOVE_QUESTION_ERROR',
+      message: ex.message
+    }));
+
+  }
+
 };
