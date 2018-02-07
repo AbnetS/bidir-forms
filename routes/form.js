@@ -42,6 +42,8 @@ var router  = Router();
  * @apiSuccess {String} created_by Officer Account registering this
  * @apiSuccess {Array} sections Form Sections
  * @apiSuccess {Boolean} has_sections If Form has Sections
+ * @apiSuccess {String} disclaimer Disclaimer
+ * @apiSuccess {Array} signatures Accepted Signatures
  *
  * @apiSuccessExample Response Example:
  *  {
@@ -60,7 +62,9 @@ var router  = Router();
  *    },
  *    has_sections: false,
  *    sections: [],
- *    layout: 'TWO_COLUMNS'
+ *    layout: 'TWO_COLUMNS',
+ *    disclaimer: "",
+ *    signatures: ["Applicant", "Filled By", "Checked By"]
  *  }
  *
  */
@@ -87,6 +91,8 @@ router.post('/create', acl(['*']), formController.create);
  * @apiSuccess {String} created_by Officer Account registering this
  * @apiSuccess {Array} sections Form Sections
  * @apiSuccess {Boolean} has_sections If Form has Sections
+ * @apiSuccess {String} disclaimer Disclaimer
+ * @apiSuccess {Array} signatures Accepted Signatures
  *
  * @apiSuccessExample Response Example:
  *  {
@@ -108,7 +114,9 @@ router.post('/create', acl(['*']), formController.create);
  *      },
  *      has_sections: false,
  *      sections: [],
- *      layout: 'TWO_COLUMNS'
+ *      layout: 'TWO_COLUMNS',
+ *      disclaimer: "",
+ *      signatures: ["Applicant", "Filled By", "Checked By"]
  *    }]
  *  }
  */
@@ -132,6 +140,8 @@ router.get('/paginate', acl(['*']), formController.fetchAllByPagination);
  * @apiSuccess {String} created_by Officer Account registering this
  * @apiSuccess {Array} sections Form Sections
  * @apiSuccess {Boolean} has_sections If Form has Sections
+ * @apiSuccess {String} disclaimer Disclaimer
+ * @apiSuccess {Array} signatures Accepted Signatures
  *
  * @apiSuccessExample Response Example:
  *  {
@@ -150,7 +160,9 @@ router.get('/paginate', acl(['*']), formController.fetchAllByPagination);
  *    },
  *    has_sections: false,
  *    sections: [],
- *    layout: 'TWO_COLUMNS'
+ *    layout: 'TWO_COLUMNS',
+ *    disclaimer: "",
+ *    signatures: ["Applicant", "Filled By", "Checked By"]
  *  }
  *
  *
@@ -183,6 +195,8 @@ router.get('/:id', acl(['*']), formController.fetchOne);
  * @apiSuccess {String} created_by Officer Account registering this
  * @apiSuccess {Array} sections Form Sections
  * @apiSuccess {Boolean} has_sections If Form has Sections
+ * @apiSuccess {String} disclaimer Disclaimer
+ * @apiSuccess {Array} signatures Accepted Signatures
  *
  * @apiSuccessExample Response Example:
  *  {
@@ -201,7 +215,9 @@ router.get('/:id', acl(['*']), formController.fetchOne);
  *    },
  *    has_sections: false,
  *    sections: [],
- *    layout: 'TWO_COLUMNS'
+ *    layout: 'TWO_COLUMNS',
+ *    disclaimer: "",
+ *    signatures: ["Applicant", "Filled By", "Checked By"]
  *  }
  *
  */
@@ -226,6 +242,8 @@ router.put('/:id', acl(['*']), formController.update);
  * @apiSuccess {String} created_by Officer Account registering this
  * @apiSuccess {Array} sections Form Sections
  * @apiSuccess {Boolean} has_sections If Form has Sections
+ * @apiSuccess {String} disclaimer Disclaimer
+ * @apiSuccess {Array} signatures Accepted Signatures
  *
  * @apiSuccessExample Response Example:
  *  {
@@ -244,7 +262,9 @@ router.put('/:id', acl(['*']), formController.update);
  *    },
  *    has_sections: false,
  *    sections: [],
- *    layout: 'TWO_COLUMNS'
+ *    layout: 'TWO_COLUMNS',
+ *    disclaimer: "",
+ *    signatures: ["Applicant", "Filled By", "Checked By"]
  *  }
  *
  */

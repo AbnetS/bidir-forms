@@ -71,6 +71,14 @@ exports.create = function* createForm(next) {
 
     body.created_by = this.state._user._id;
 
+    if(body.type === 'LOAN_APPLICATION') {
+      body.signatures = FORM.SIGNATURES.LOAN.slice();
+
+    } else if(body.type === 'SCREENING') {
+      body.signatures = FORM.SIGNATURES.SCREENING.slice();
+
+    }
+
     // Create Form Type
     form = yield FormDal.create(body);
 
@@ -168,6 +176,10 @@ exports.update = function* updateForm(next) {
   }
 
   try {
+    
+    delete body.signatures;
+    delete body.disclaimer;
+
     let form = yield FormDal.update(query, body);
 
     yield LogDal.track({

@@ -21,6 +21,8 @@ var FormSchema = new Schema({
     layout:         { type: String, default: FORM.LAYOUTS[0], enums: FORM.LAYOUTS },
     has_sections:   { type: Boolean, default: false },
     sections:       [{ type: Schema.Types.ObjectId, ref: 'Section' }],
+    signatures:     [{ type: String }],
+    disclaimer:     { type: String, default: '' },
     date_created:   { type: Date },
     last_modified:  { type: Date }
 });
@@ -61,6 +63,8 @@ FormSchema.statics.attributes = {
   subtitle: 1,
   purpose: 1,
   layout: 1,
+  disclaimer: 1,
+  signatures: 1,
   date_created: 1,
   last_modified: 1,
   _id: 1
