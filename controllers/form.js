@@ -17,7 +17,7 @@ const validator  = require('validator');
 const config             = require('../config');
 const CustomError        = require('../lib/custom-error');
 const checkPermissions   = require('../lib/permissions');
-const FORM     = require ('../lib/enums').FORM
+const FORM     = require ('../lib/enums').FORM;
 
 const TokenDal           = require('../dal/token');
 const FormDal          = require('../dal/form');

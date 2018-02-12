@@ -143,8 +143,12 @@ exports.createGrouped = function* createGroupedQuestion(next) {
       throw new Error('Question with that title already exists!!');
     }
 
-    if(body.options) {
-      throw new Error('Fill in Blank Questions Do not need options');
+    let section;
+    if(form.has_sections && !body.section) {
+      throw new Error('Please provide section  reference that question belongs to!');
+    } else {
+      section = yield SectionDal.get({ _id: body.section });
+      if(!section) throw new Error('Section is Not Known!')
     }
 
     if(!body.show && !body.prerequisites) throw new Error('Question Requires Prerequisites');
@@ -154,15 +158,28 @@ exports.createGrouped = function* createGroupedQuestion(next) {
     // Create Question Type
     question = yield QuestionDal.create(body);
 
-    form = form.toJSON();
+    if(body.section) {
+      section = section.toJSON();
+      
+      let questions = section.questions.slice();
 
-    let questions = form.questions.slice();
+      questions.push(question._id);
 
-    questions.push(question._id);
+      yield SectionDal.update({ _id: section._id },{
+        questions: questions
+      });
 
-    yield FormDal.update({ _id: form._id },{
-      questions: questions
-    });
+    } else {
+      form = form.toJSON();
+
+      let questions = form.questions.slice();
+
+      questions.push(question._id);
+
+      yield FormDal.update({ _id: form._id },{
+        questions: questions
+      });
+    }
 
     this.body = question;
 
