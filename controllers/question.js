@@ -116,8 +116,6 @@ exports.createGrouped = function* createGroupedQuestion(next) {
   this.checkBody('required')
       .notEmpty('Question Mandatory value is empty')
       .toBoolean('Required Value is not a boolean value');
-  this.checkBody('remark')
-      .notEmpty('Question Remark is empty');
   this.checkBody('show')
       .notEmpty('Show Question value is empty')
       .toBoolean('Show Value is not a boolean value');
@@ -215,8 +213,6 @@ exports.createFIB = function* createFIBQuestion(next) {
   this.checkBody('required')
       .notEmpty('Question Mandatory value is empty')
       .toBoolean('Required Value is not a boolean value');
-  this.checkBody('remark')
-      .notEmpty('Question Remark is empty');
   this.checkBody('show')
       .notEmpty('Show Question value is empty')
       .toBoolean('Show Value is not a boolean value');
@@ -293,8 +289,6 @@ exports.createMC = function* createMultipleChoiceQuestion(next) {
   this.checkBody('required')
       .empty('Question Mandatory value is empty')
       .toBoolean('Required Value is not a boolean value');
-  this.checkBody('remark')
-      .empty('Question Remark is empty');
   this.checkBody('options')
       .notEmpty('Question Options is empty');
   this.checkBody('show')
@@ -368,8 +362,6 @@ exports.createSC = function* createSingleChoiceQuestion(next) {
   this.checkBody('required')
       .empty('Question Mandatory value is empty')
       .toBoolean('Required Value is not a boolean value');
-  this.checkBody('remark')
-      .empty('Question Remark is empty');
   this.checkBody('options')
       .notEmpty('Question Options is empty');
   this.checkBody('show')
@@ -443,8 +435,6 @@ exports.createYN = function* createYNQuestion(next) {
   this.checkBody('required')
       .empty('Question Mandatory value is empty')
       .toBoolean('Required Value is not a boolean value');
-  this.checkBody('remark')
-      .empty('Question Remark is empty');
   this.checkBody('show')
       .notEmpty('Show Question value is empty')
       .toBoolean('Show Value is not a boolean value');
