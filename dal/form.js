@@ -18,13 +18,19 @@ var returnFields = Form.attributes;
 var population = [{
   path: 'questions',
   select: Question.attributes,
+  options: {
+    sort: { number: '-1' }
+  },
   populate: {
     path: 'sub_questions',
-   select: Question.attributes,
+    select: Question.attributes,
   }
 },{
   path: 'sections',
-  select: Section.attributes
+  select: Section.attributes,
+  options: {
+    sort: { number: '-1' }
+  }
 }];
 
 /**

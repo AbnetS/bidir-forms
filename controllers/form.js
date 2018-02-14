@@ -6,22 +6,22 @@ const crypto  = require('crypto');
 const path    = require('path');
 const url     = require('url');
 
-const debug      = require('debug')('api:form-controller');
-const moment     = require('moment');
-const jsonStream = require('streaming-json-stringify');
-const _          = require('lodash');
-const co         = require('co');
-const del        = require('del');
-const validator  = require('validator');
+const debug       = require('debug')('api:form-controller');
+const moment      = require('moment');
+const jsonStream  = require('streaming-json-stringify');
+const _           = require('lodash');
+const co          = require('co');
+const del         = require('del');
+const validator   = require('validator');
 
-const config             = require('../config');
-const CustomError        = require('../lib/custom-error');
-const checkPermissions   = require('../lib/permissions');
-const FORM     = require ('../lib/enums').FORM;
+const config              = require('../config');
+const CustomError         = require('../lib/custom-error');
+const checkPermissions    = require('../lib/permissions');
+const FORM                = require ('../lib/enums').FORM;
 
-const TokenDal           = require('../dal/token');
+const TokenDal         = require('../dal/token');
 const FormDal          = require('../dal/form');
-const LogDal             = require('../dal/log');
+const LogDal           = require('../dal/log');
 const QuestionDal      = require('../dal/question');
 
 let hasPermission = checkPermissions.isPermitted('FORM');
