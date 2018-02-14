@@ -11,6 +11,7 @@ var Schema = mongoose.Schema;
 
 var SectionSchema = new Schema({       
     title:           { type: String, default: '' },
+    number:          { type: String, default: '' },
     questions:       [{ type: Schema.Types.ObjectId, ref: 'Question' }],
     date_created:    { type: Date },
     last_modified:   { type: Date }
@@ -44,6 +45,7 @@ SectionSchema.pre('save', function preSaveMiddleware(next) {
  */
 SectionSchema.statics.attributes = {
   title: 1,
+  number: 1,
   questions: 1,
   date_created: 1,
   last_modified: 1,
