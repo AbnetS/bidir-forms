@@ -17,9 +17,11 @@ const validator  = require('validator');
 const config             = require('../config');
 const CustomError        = require('../lib/custom-error');
 const QUESTION           = require('../lib/enums').QUESTION;
+const checkPermissions    = require('../lib/permissions');
 
 const Form              = require('../models/form');
 const Section           = require('../models/section');
+const Question          = require('../models/question');
 
 const TokenDal           = require('../dal/token');
 const QuestionDal        = require('../dal/question');
@@ -27,6 +29,7 @@ const LogDal             = require('../dal/log');
 const FormDal            = require('../dal/form');
 const SectionDal         = require('../dal/section');
 
+let hasPermission = checkPermissions.isPermitted('FORM');
 
 /**
  * Create a  question.
@@ -38,6 +41,14 @@ const SectionDal         = require('../dal/section');
  */
 exports.create = function* createQuestion(next) {
   debug('create question');
+
+  let isPermitted = yield hasPermission(this.state._user, 'CREATE');
+  if(!isPermitted) {
+    return this.throw(new CustomError({
+      type: 'CREATE_QUESTION_ERROR',
+      message: "You Don't have enough permissions to complete this action"
+    }));
+  }
 
   let body = this.request.body;
 
@@ -67,18 +78,36 @@ exports.create = function* createQuestion(next) {
 
     if(!body.show && !body.prerequisites) throw new Error('Question Requires Prerequisites');
 
+    let parent;
+    if(body.parent_question) {
+      parent = yield Question.findOne({ _id: body.parent_question }).exec();
+      if(!parent) throw new Error('Parent Question Does Not Exist')
+    }
+
     // Create Question Type
     question = yield QuestionDal.create(body);
 
-    form = form.toJSON();
+    if(!body.parent_question) {
+      form = form.toJSON();
 
-    let questions = form.questions.slice();
+      let questions = form.questions.slice();
 
-    questions.push(question._id);
+      questions.push(question._id);
 
-    yield FormDal.update({ _id: form._id },{
-      questions: questions
-    });
+      yield FormDal.update({ _id: form._id },{
+        questions: questions
+      });
+    } else {
+      parent = parent.toJSON();
+
+      let subQuestions = parent.sub_questions.slice();
+
+      subQuestions.push(question._id);
+
+      yield QuestionDal.update({ _id: parent._id },{
+        sub_questions: subQuestions
+      });
+    }
 
 
     this.body = question;
@@ -104,6 +133,14 @@ exports.create = function* createQuestion(next) {
 exports.createGrouped = function* createGroupedQuestion(next) {
   debug('create Grouped question');
 
+  let isPermitted = yield hasPermission(this.state._user, 'CREATE');
+  if(!isPermitted) {
+    return this.throw(new CustomError({
+      type: 'CREATE_QUESTION_ERROR',
+      message: "You Don't have enough permissions to complete this action"
+    }));
+  }
+
   let body = this.request.body;
 
   this.checkBody('question_text')
@@ -141,14 +178,6 @@ exports.createGrouped = function* createGroupedQuestion(next) {
       throw new Error('Question with that title already exists!!');
     }
 
-    let section;
-    if(form.has_sections && !body.section) {
-      throw new Error('Please provide section  reference that question belongs to!');
-    } else {
-      section = yield SectionDal.get({ _id: body.section });
-      if(!section) throw new Error('Section is Not Known!')
-    }
-
     if(!body.show && !body.prerequisites) throw new Error('Question Requires Prerequisites');
 
     body.type = 'GROUPED';
@@ -156,18 +185,7 @@ exports.createGrouped = function* createGroupedQuestion(next) {
     // Create Question Type
     question = yield QuestionDal.create(body);
 
-    if(body.section) {
-      section = section.toJSON();
-      
-      let questions = section.questions.slice();
-
-      questions.push(question._id);
-
-      yield SectionDal.update({ _id: section._id },{
-        questions: questions
-      });
-
-    } else {
+    if(!body.parent_question) {
       form = form.toJSON();
 
       let questions = form.questions.slice();
@@ -176,6 +194,16 @@ exports.createGrouped = function* createGroupedQuestion(next) {
 
       yield FormDal.update({ _id: form._id },{
         questions: questions
+      });
+    } else {
+      parent = parent.toJSON();
+
+      let subQuestions = parent.sub_questions.slice();
+
+      subQuestions.push(question._id);
+
+      yield QuestionDal.update({ _id: parent._id },{
+        sub_questions: subQuestions
       });
     }
 
@@ -201,6 +229,14 @@ exports.createGrouped = function* createGroupedQuestion(next) {
 exports.createFIB = function* createFIBQuestion(next) {
   debug('create Fill In Blanks question');
 
+  let isPermitted = yield hasPermission(this.state._user, 'CREATE');
+  if(!isPermitted) {
+    return this.throw(new CustomError({
+      type: 'CREATE_QUESTION_ERROR',
+      message: "You Don't have enough permissions to complete this action"
+    }));
+  }
+
   let body = this.request.body;
 
   this.checkBody('question_text')
@@ -238,6 +274,12 @@ exports.createFIB = function* createFIBQuestion(next) {
       throw new Error('Question with that title already exists!!');
     }
 
+    let parent;
+    if(body.parent_question) {
+      parent = yield Question.findOne({ _id: body.parent_question }).exec();
+      if(!parent) throw new Error('Parent Question Does Not Exist')
+    }
+
     if(body.options) {
       throw new Error('Fill in Blank Questions Do not need options');
     }
@@ -250,15 +292,27 @@ exports.createFIB = function* createFIBQuestion(next) {
     // Create Question Type
     question = yield QuestionDal.create(body);
 
-    form = form.toJSON();
+    if(!body.parent_question) {
+      form = form.toJSON();
 
-    let questions = form.questions.slice();
+      let questions = form.questions.slice();
 
-    questions.push(question._id);
+      questions.push(question._id);
 
-    yield FormDal.update({ _id: form._id },{
-      questions: questions
-    });
+      yield FormDal.update({ _id: form._id },{
+        questions: questions
+      });
+    } else {
+      parent = parent.toJSON();
+
+      let subQuestions = parent.sub_questions.slice();
+
+      subQuestions.push(question._id);
+
+      yield QuestionDal.update({ _id: parent._id },{
+        sub_questions: subQuestions
+      });
+    }
 
     this.body = question;
 
@@ -282,6 +336,14 @@ exports.createFIB = function* createFIBQuestion(next) {
 exports.createMC = function* createMultipleChoiceQuestion(next) {
   debug('create Multiple Choice question');
 
+  let isPermitted = yield hasPermission(this.state._user, 'CREATE');
+  if(!isPermitted) {
+    return this.throw(new CustomError({
+      type: 'CREATE_QUESTION_ERROR',
+      message: "You Don't have enough permissions to complete this action"
+    }));
+  }
+
   let body = this.request.body;
 
   this.checkBody('question_text')
@@ -316,6 +378,12 @@ exports.createMC = function* createMultipleChoiceQuestion(next) {
       throw new Error('Question with that title already exists!!');
     }
 
+    let parent;
+    if(body.parent_question) {
+      parent = yield Question.findOne({ _id: body.parent_question }).exec();
+      if(!parent) throw new Error('Parent Question Does Not Exist')
+    }
+
     if(!body.show && !body.prerequisites) throw new Error('Question Requires Prerequisites');
 
     body.type = 'MULTIPLE_CHOICE';
@@ -323,15 +391,27 @@ exports.createMC = function* createMultipleChoiceQuestion(next) {
     // Create Question Type
     question = yield QuestionDal.create(body);
 
-    form = form.toJSON();
+    if(!body.parent_question) {
+      form = form.toJSON();
 
-    let questions = form.questions.slice();
+      let questions = form.questions.slice();
 
-    questions.push(question._id);
+      questions.push(question._id);
 
-    yield FormDal.update({ _id: form._id },{
-      questions: questions
-    });
+      yield FormDal.update({ _id: form._id },{
+        questions: questions
+      });
+    } else {
+      parent = parent.toJSON();
+
+      let subQuestions = parent.sub_questions.slice();
+
+      subQuestions.push(question._id);
+
+      yield QuestionDal.update({ _id: parent._id },{
+        sub_questions: subQuestions
+      });
+    }
 
     this.body = question;
 
@@ -355,6 +435,14 @@ exports.createMC = function* createMultipleChoiceQuestion(next) {
 exports.createSC = function* createSingleChoiceQuestion(next) {
   debug('create Single Choice question');
 
+  let isPermitted = yield hasPermission(this.state._user, 'CREATE');
+  if(!isPermitted) {
+    return this.throw(new CustomError({
+      type: 'CREATE_QUESTION_ERROR',
+      message: "You Don't have enough permissions to complete this action"
+    }));
+  }
+
   let body = this.request.body;
 
   this.checkBody('question_text')
@@ -389,6 +477,12 @@ exports.createSC = function* createSingleChoiceQuestion(next) {
       throw new Error('Question with that title already exists!!');
     }
 
+    let parent;
+    if(body.parent_question) {
+      parent = yield Question.findOne({ _id: body.parent_question }).exec();
+      if(!parent) throw new Error('Parent Question Does Not Exist')
+    }
+
     if(!body.show && !body.prerequisites) throw new Error('Question Requires Prerequisites');
 
     body.type = 'SINGLE_CHOICE';
@@ -396,15 +490,27 @@ exports.createSC = function* createSingleChoiceQuestion(next) {
     // Create Question Type
     question = yield QuestionDal.create(body);
 
-    form = form.toJSON();
+    if(!body.parent_question) {
+      form = form.toJSON();
 
-    let questions = form.questions.slice();
+      let questions = form.questions.slice();
 
-    questions.push(question._id);
+      questions.push(question._id);
 
-    yield FormDal.update({ _id: form._id },{
-      questions: questions
-    });
+      yield FormDal.update({ _id: form._id },{
+        questions: questions
+      });
+    } else {
+      parent = parent.toJSON();
+
+      let subQuestions = parent.sub_questions.slice();
+
+      subQuestions.push(question._id);
+
+      yield QuestionDal.update({ _id: parent._id },{
+        sub_questions: subQuestions
+      });
+    }
 
     this.body = question;
 
@@ -427,6 +533,14 @@ exports.createSC = function* createSingleChoiceQuestion(next) {
  */
 exports.createYN = function* createYNQuestion(next) {
   debug('create Yes/No question');
+
+  let isPermitted = yield hasPermission(this.state._user, 'CREATE');
+  if(!isPermitted) {
+    return this.throw(new CustomError({
+      type: 'CREATE_QUESTION_ERROR',
+      message: "You Don't have enough permissions to complete this action"
+    }));
+  }
 
   let body = this.request.body;
 
@@ -460,6 +574,12 @@ exports.createYN = function* createYNQuestion(next) {
       throw new Error('Question with that title already exists!!');
     }
 
+    let parent;
+    if(body.parent_question) {
+      parent = yield Question.findOne({ _id: body.parent_question }).exec();
+      if(!parent) throw new Error('Parent Question Does Not Exist')
+    }
+
     if(!body.show && !body.prerequisites) throw new Error('Question Requires Prerequisites');
 
     body.type = 'YES_NO';
@@ -467,15 +587,27 @@ exports.createYN = function* createYNQuestion(next) {
     // Create Question Type
     question = yield QuestionDal.create(body);
 
-    form = form.toJSON();
+    if(!body.parent_question) {
+      form = form.toJSON();
 
-   let questions = form.questions.slice();
+      let questions = form.questions.slice();
 
-    questions.push(question._id);
+      questions.push(question._id);
 
-    yield FormDal.update({ _id: form._id },{
-      questions: questions
-    });
+      yield FormDal.update({ _id: form._id },{
+        questions: questions
+      });
+    } else {
+      parent = parent.toJSON();
+
+      let subQuestions = parent.sub_questions.slice();
+
+      subQuestions.push(question._id);
+
+      yield QuestionDal.update({ _id: parent._id },{
+        sub_questions: subQuestions
+      });
+    }
 
     this.body = question;
 
@@ -538,6 +670,14 @@ exports.fetchOne = function* fetchOneQuestion(next) {
 exports.update = function* updateQuestion(next) {
   debug(`updating question: ${this.params.id}`);
 
+  let isPermitted = yield hasPermission(this.state._user, 'UPDATE');
+  if(!isPermitted) {
+    return this.throw(new CustomError({
+      type: 'UPDATE_QUESTION_ERROR',
+      message: "You Don't have enough permissions to complete this action"
+    }));
+  }
+
   let query = {
     _id: this.params.id
   };
@@ -579,6 +719,14 @@ exports.update = function* updateQuestion(next) {
  */
 exports.fetchAllByPagination = function* fetchAllQuestions(next) {
   debug('get a collection of questions by pagination');
+
+  let isPermitted = yield hasPermission(this.state._user, 'VIEW');
+  if(!isPermitted) {
+    return this.throw(new CustomError({
+      type: 'CREATE_QUESTION_ERROR',
+      message: "You Don't have enough permissions to complete this action"
+    }));
+  }
 
   // retrieve pagination query params
   let page   = this.query.page || 1;
@@ -659,7 +807,19 @@ exports.remove = function* removeQuestion(next) {
 
       _.pull(questions, question._id);
 
-      yield SectionDal.update({ _id: section },{ questions: question })
+      yield SectionDal.update({ _id: section._id },{ questions: question })
+    }
+
+    // remove from parent question
+    if(body.parent_question) {
+      let parent = yield Question.findOne({ _id: body.question }).exec();
+
+      let subQquestions = parent.sub_questions.slice();
+
+      _.pull(subQquestions, question._id);
+
+      yield QuestionDal.update({ _id: parent._id },{ sub_questions: subQquestions })
+
     }
 
     yield LogDal.track({

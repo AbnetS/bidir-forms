@@ -33,6 +33,7 @@ var router  = Router();
  * @apiSuccess {String} _id section id
  * @apiSuccess {String} title Section Title
  * @apiSuccess {Array} questions Section Questions
+ * @apiSuccess {String} number Question Order number
  *
  * @apiSuccessExample Response Example:
  *  {
@@ -60,6 +61,7 @@ router.post('/create', acl(['*']), sectionController.create);
  * @apiSuccess {String} _id section id
  * @apiSuccess {String} title Section Title
  * @apiSuccess {Array} questions Section Questions
+ * @apiSuccess {String} number Question Order number
  *
  * @apiSuccessExample Response Example:
  *  {
@@ -93,6 +95,7 @@ router.get('/:id', acl(['*']), sectionController.fetchOne);
  * @apiSuccess {String} _id section id
  * @apiSuccess {String} title Section Title
  * @apiSuccess {Array} questions Section Questions
+ * @apiSuccess {String} number Question Order number
  *
  * @apiSuccessExample Response Example:
  *  {

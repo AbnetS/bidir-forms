@@ -24,6 +24,8 @@ var router  = Router();
  * @apiParam {String} type Question Type ie YES_NO, FILL_IN_BLANK, MULTIPLE_CHOICE, SINGLE_CHOICE, GROUPED
  * @apiParam {Boolean} required Question required or not(true or false)
  * @apiParam {String} form Form containing Question
+ * @apiParam {String} number Question Order number
+ * @apiParam {String} [parent_question] if the Question is a sub_question
  *
  * @apiParamExample Request Example:
  *  {
@@ -31,7 +33,8 @@ var router  = Router();
  *    remark: "This is a remark",
  *    type: "YES_NO",
  *    required: true,
- *    form: "556e1174a8952c9521286a60"
+ *    form: "556e1174a8952c9521286a60",
+ *    number: "1.1"
  *  }
  *
  * @apiSuccess {String} _id question id
@@ -46,6 +49,7 @@ var router  = Router();
  * @apiSuccess {Boolean} show Show Question true or false
  * @apiSuccess {Array} prerequisities Question Prerequisities
  * @apiSuccess {String} measurement_unit Measurement Unit
+ * @apiSuccess {String} number Question Order number
  *
  * @apiSuccessExample Response Example:
  *  {
@@ -60,7 +64,8 @@ var router  = Router();
  *    show: true,
  *    prerequisities: [],
  *    validation_factor: "NONE",
- *    measurement_unit: ""
+ *    measurement_unit: "",
+ *    number: "1.1"
  *  }
  *
  */
@@ -80,6 +85,8 @@ router.post('/create', acl(['*']), questionController.create);
  * @apiParam {Boolean} required Question required or not(true or false)
  * @apiParam {String} form Form containing Question
  * @apiParam {Array} sub_questions Nested Sub Questions References
+ * @apiParam {String} number Question Order number
+ * @apiParam {String} [parent_question] if the Question is a sub_question
  *
  * @apiParamExample Request Example:
  *  {
@@ -88,7 +95,8 @@ router.post('/create', acl(['*']), questionController.create);
  *    show: true,
  *    required: true,
  *    form: "556e1174a8952c9521286a60"
- *    sub_questions: ["556e1174a8952c9521286a60"]
+ *    sub_questions: ["556e1174a8952c9521286a60"],
+ *    number: "1.1"
  *  }
  *
  * @apiSuccess {String} _id question id
@@ -103,6 +111,7 @@ router.post('/create', acl(['*']), questionController.create);
  * @apiSuccess {Boolean} show Show Question true or false
  * @apiSuccess {Array} prerequisities Question Prerequisities
  * @apiSuccess {String} measurement_unit Measurement Unit
+ * @apiSuccess {String} number Question Order number
  *
  * @apiSuccessExample Response Example:
  *  {
@@ -117,7 +126,8 @@ router.post('/create', acl(['*']), questionController.create);
  *    show: true,
  *    prerequisities: [],
  *    validation_factor: "NONE",
- *    measurement_unit: ""
+ *    measurement_unit: "",
+ *    number: "1.1"
  *  }
  *
  */
@@ -136,6 +146,8 @@ router.post('/create/grouped', acl(['*']), questionController.createGrouped);
  * @apiParam {String} show Question to be shown or not(true or false)
  * @apiParam {Boolean} required Question required or not(true or false)
  * @apiParam {String} form Form containing Question
+ * @apiParam {String} number Question Order number
+ * @apiParam {String} [parent_question] if the Question is a sub_question
  *
  * @apiParamExample Request Example:
  *  {
@@ -143,7 +155,8 @@ router.post('/create/grouped', acl(['*']), questionController.createGrouped);
  *    remark: "This is a remark",
  *    show: true,
  *    required: true,
- *    form: "556e1174a8952c9521286a60"
+ *    form: "556e1174a8952c9521286a60",
+ *    number: "1.1"
  *  }
  *
  * @apiSuccess {String} _id question id
@@ -158,6 +171,7 @@ router.post('/create/grouped', acl(['*']), questionController.createGrouped);
  * @apiSuccess {Boolean} show Show Question true or false
  * @apiSuccess {Array} prerequisities Question Prerequisities
  * @apiSuccess {String} measurement_unit Measurement Unit
+ * @apiSuccess {String} number Question Order number
  *
  * @apiSuccessExample Response Example:
  *  {
@@ -172,7 +186,8 @@ router.post('/create/grouped', acl(['*']), questionController.createGrouped);
  *    show: true,
  *    prerequisities: [],
  *    validation_factor: "NONE",
- *    measurement_unit: ""
+ *    measurement_unit: "",
+ *    number: "1.1"
  *  }
  *
  */
@@ -192,6 +207,8 @@ router.post('/create/fib', acl(['*']), questionController.createFIB);
  * @apiParam {Boolean} required Question required or not(true or false)
  * @apiParam {String} form Form containing Question
  * @apiParam {Array} options Question Options
+ * @apiParam {String} number Question Order number
+ * @apiParam {String} [parent_question] if the Question is a sub_question
  *
  * @apiParamExample Request Example:
  *  {
@@ -200,7 +217,8 @@ router.post('/create/fib', acl(['*']), questionController.createFIB);
  *    show: true,
  *    required: true,
  *    form: "556e1174a8952c9521286a60"
- *    options: ['Choice 1', 'Choice 2']
+ *    options: ['Choice 1', 'Choice 2'],
+ *    number: "1.1"
  *  }
  *
  * @apiSuccess {String} _id question id
@@ -215,6 +233,7 @@ router.post('/create/fib', acl(['*']), questionController.createFIB);
  * @apiSuccess {Boolean} show Show Question true or false
  * @apiSuccess {Array} prerequisities Question Prerequisities
  * @apiSuccess {String} measurement_unit Measurement Unit
+ * @apiSuccess {String} number Question Order number
  *
  * @apiSuccessExample Response Example:
  *  {
@@ -229,7 +248,8 @@ router.post('/create/fib', acl(['*']), questionController.createFIB);
  *    show: true,
  *    prerequisities: [],
  *    validation_factor: "NONE",
- *    measurement_unit: ""
+ *    measurement_unit: "",
+ *    number: "1.1"
  *  }
  *
  */
@@ -249,6 +269,8 @@ router.post('/create/sc', acl(['*']), questionController.createSC);
  * @apiParam {Boolean} required Question required or not(true or false)
  * @apiParam {String} form Form containing Question
  * @apiParam {Array} options Question Options
+ * @apiParam {String} number Question Order number
+ * @apiParam {String} [parent_question] if the Question is a sub_question
  *
  * @apiParamExample Request Example:
  *  {
@@ -258,6 +280,7 @@ router.post('/create/sc', acl(['*']), questionController.createSC);
  *    required: true,
  *    form: "556e1174a8952c9521286a60"
  *    options: ['CHOICE 1', 'CHOICE 2'],
+ *    number: "1.1"
  *  }
  *
  * @apiSuccess {String} _id question id
@@ -272,6 +295,7 @@ router.post('/create/sc', acl(['*']), questionController.createSC);
  * @apiSuccess {Boolean} show Show Question true or false
  * @apiSuccess {Array} prerequisities Question Prerequisities
  * @apiSuccess {String} measurement_unit Measurement Unit
+ * @apiSuccess {String} number Question Order number
  *
  * @apiSuccessExample Response Example:
  *  {
@@ -286,7 +310,8 @@ router.post('/create/sc', acl(['*']), questionController.createSC);
  *    show: true,
  *    prerequisities: [],
  *    validation_factor: "NONE",
- *    measurement_unit: ""
+ *    measurement_unit: "",
+ *    number: "1.1"
  *  }
  *
  */
@@ -306,6 +331,8 @@ router.post('/create/mc', acl(['*']), questionController.createMC);
  * @apiParam {Boolean} required Question required or not(true or false)
  * @apiParam {String} form Form containing Question
  * @apiParam {Array} options Question Options
+ * @apiParam {String} number Question Order number
+ * @apiParam {String} [parent_question] if the Question is a sub_question
  *
  * @apiParamExample Request Example:
  *  {
@@ -315,6 +342,7 @@ router.post('/create/mc', acl(['*']), questionController.createMC);
  *    required: true,
  *    form: "556e1174a8952c9521286a60"
  *    options: ['Yes', 'No'],
+ *    number: "1.1"
  *  }
  *
  * @apiSuccess {String} _id question id
@@ -329,6 +357,7 @@ router.post('/create/mc', acl(['*']), questionController.createMC);
  * @apiSuccess {Boolean} show Show Question true or false
  * @apiSuccess {Array} prerequisities Question Prerequisities
  * @apiSuccess {String} measurement_unit Measurement Unit
+ * @apiSuccess {String} number Question Order number
  *
  * @apiSuccessExample Response Example:
  *  {
@@ -343,7 +372,8 @@ router.post('/create/mc', acl(['*']), questionController.createMC);
  *    show: true,
  *    prerequisities: [],
  *    validation_factor: "NONE",
- *    measurement_unit: ""
+ *    measurement_unit: "",
+ *    number: "1.1"
  *  }
  *
  */
@@ -373,6 +403,7 @@ router.post('/create/yn', acl(['*']), questionController.createYN);
  * @apiSuccess {Boolean} show Show Question true or false
  * @apiSuccess {Array} prerequisities Question Prerequisities
  * @apiSuccess {String} measurement_unit Measurement Unit
+ * @apiSuccess {String} number Question Order number
  *
  * @apiSuccessExample Response Example:
  *  {
@@ -390,7 +421,8 @@ router.post('/create/yn', acl(['*']), questionController.createYN);
  *        show: true,
  *        prerequisities: [],
  *        validation_factor: "NONE",
- *        measurement_unit: ""
+ *        measurement_unit: "",
+ *        number: "1.1"
  *    }]
  *  }
  */
@@ -416,6 +448,7 @@ router.get('/paginate', acl(['*']), questionController.fetchAllByPagination);
  * @apiSuccess {Boolean} show Show Question true or false
  * @apiSuccess {Array} prerequisities Question Prerequisities
  * @apiSuccess {String} measurement_unit Measurement Unit
+ * @apiSuccess {String} number Question Order number
  *
  * @apiSuccessExample Response Example:
  *  {
@@ -433,7 +466,8 @@ router.get('/paginate', acl(['*']), questionController.fetchAllByPagination);
  *      question: "556e1174a8952c9521286a60"
  *    }],
  *    validation_factor: "NONE",
- *    measurement_unit: ""
+ *    measurement_unit: "",
+ *    number: "1.1"
  *  }
  *
  */
@@ -467,6 +501,7 @@ router.get('/:id', acl(['*']), questionController.fetchOne);
  * @apiSuccess {Boolean} show Show Question true or false
  * @apiSuccess {Array} prerequisities Question Prerequisities
  * @apiSuccess {String} measurement_unit Measurement Unit
+ * @apiSuccess {String} number Question Order number
  *
  * @apiSuccessExample Response Example:
  *  {
@@ -481,10 +516,59 @@ router.get('/:id', acl(['*']), questionController.fetchOne);
  *    show: true,
  *    prerequisities: [],
  *    validation_factor: "NONE",
- *    measurement_unit: ""
+ *    measurement_unit: "",
+ *    number: "1.1"
  *  }
  */
 router.put('/:id', acl(['*']), questionController.update);
+
+/**
+ * @api {delete} /forms/questions/:id Delete Question Question
+ * @apiVersion 1.0.0
+ * @apiName Update
+ * @apiGroup Question 
+ *
+ * @apiDescription Update a Question question with the given id
+ *
+ * @apiParam {String} [parent_question] Parent question if sub_question
+ *
+ * @apiParamExample Request example:
+ * {
+ *    parent_question: "556e1174a8952c9521286a60"
+ * }
+ *
+ * @apiSuccess {String} _id question id
+ * @apiSuccess {String} question_text Question Text Title
+ * @apiSuccess {String} remark Question Remark
+ * @apiSuccess {String} type Question Type ie YES_NO, FILL_IN_BLANK, MULTIPLE_CHOICE, SINGLE_CHOICE, GROUPED
+ * @apiSuccess {String} sub_questions Nested Sub Questions References
+ * @apiSuccess {Boolean} required Question required or not(true or false)
+ * @apiSuccess {Array} validation_factor Question Validation Factor ie NONE, ALPHANUMERIC, NUMERIC, ALPHABETIC
+ * @apiSuccess {Array} values Question Answer Values
+ * @apiSuccess {Array} options Question Choices Options
+ * @apiSuccess {Boolean} show Show Question true or false
+ * @apiSuccess {Array} prerequisities Question Prerequisities
+ * @apiSuccess {String} measurement_unit Measurement Unit
+ * @apiSuccess {String} number Question Order number
+ *
+ * @apiSuccessExample Response Example:
+ *  {
+ *    _id : "556e1174a8952c9521286a60",
+ *    question_text: "Question Text Title",
+ *    remark: "This is a remark",
+ *    type: "YES_NO",
+ *    sub_questions: [],
+ *    required: true
+ *    options: ['Yes', 'No'],
+ *    value: '',
+ *    show: true,
+ *    prerequisities: [],
+ *    validation_factor: "NONE",
+ *    measurement_unit: "",
+ *    number: "1.1"
+ *  }
+ */
+router.delete('/:id', acl(['*']), questionController.remove);
 
 // Expose Question Router
 module.exports = router;

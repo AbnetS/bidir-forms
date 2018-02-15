@@ -22,6 +22,8 @@ const LogDal            = require('../dal/log');
 const QuestionDal       = require('../dal/question');
 const FormDal           = require('../dal/form');
 
+let hasPermission = checkPermissions.isPermitted('FORM');
+
 /**
  * Create a section.
  *
@@ -31,7 +33,15 @@ const FormDal           = require('../dal/form');
  *
  */
 exports.create = function* createSection(next) {
-    debug('create question section');
+  debug('create question section');
+
+  let isPermitted = yield hasPermission(this.state._user, 'CREATE');
+  if(!isPermitted) {
+    return this.throw(new CustomError({
+      type: 'CREATE_SECTION_ERROR',
+      message: "You Don't have enough permissions to complete this action"
+    }));
+  }
 
   let body = this.request.body;
 
@@ -133,6 +143,13 @@ exports.fetchOne = function* fetchOneSection(next) {
 exports.update = function* updateSection(next) {
   debug(`updating section: ${this.params.id}`);
 
+  let isPermitted = yield hasPermission(this.state._user, 'UPDATE');
+  if(!isPermitted) {
+    return this.throw(new CustomError({
+      type: 'UPDATE_SECTION_ERROR',
+      message: "You Don't have enough permissions to complete this action"
+    }));
+  }
 
   let query = {
     _id: this.params.id
