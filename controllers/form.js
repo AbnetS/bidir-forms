@@ -178,7 +178,6 @@ exports.update = function* updateForm(next) {
   try {
     
     delete body.signatures;
-    delete body.disclaimer;
 
     let form = yield FormDal.update(query, body);
 

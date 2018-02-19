@@ -19,7 +19,7 @@ var population = [{
   path: 'questions',
   select: Question.attributes,
   options: {
-    sort: { number: '-1' }
+    sort: { number: '1' }
   },
   populate: {
     path: 'sub_questions',
@@ -28,8 +28,12 @@ var population = [{
 },{
   path: 'sections',
   select: Section.attributes,
+  populate: {
+    path: 'questions',
+    select: Question.attributes,
+  },
   options: {
-    sort: { number: '-1' }
+    sort: { number: '1' }
   }
 }];
 

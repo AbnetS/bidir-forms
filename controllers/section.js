@@ -177,3 +177,49 @@ exports.update = function* updateSection(next) {
   }
 
 };
+
+/**
+ * Get a collection of sections by Pagination
+ *
+ * @desc Fetch a collection of sections
+ *
+ * @param {Function} next Middleware dispatcher
+ */
+exports.fetchAllByPagination = function* fetchAllSections(next) {
+  debug('get a collection of sections by pagination');
+
+  let isPermitted = yield hasPermission(this.state._user, 'VIEW');
+  if(!isPermitted) {
+    return this.throw(new CustomError({
+      type: 'VIEW_SECTIONS_COLLECTION_ERROR',
+      message: "You Don't have enough permissions to complete this action"
+    }));
+  }
+
+  // retrieve pagination query params
+  let page   = this.query.page || 1;
+  let limit  = this.query.per_page || 10;
+  let query = {};
+
+  let sortType = this.query.sort_by;
+  let sort = {};
+  sortType ? (sort[sortType] = -1) : (sort.date_created = -1 );
+
+  let opts = {
+    page: +page,
+    limit: +limit,
+    sort: sort
+  };
+
+  try {
+    let sections = yield SectionDal.getCollectionByPagination(query, opts);
+
+    this.body = sections;
+    
+  } catch(ex) {
+    return this.throw(new CustomError({
+      type: 'FETCH_SECTIONS_COLLECTION_ERROR',
+      message: ex.message
+    }));
+  }
+};

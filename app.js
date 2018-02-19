@@ -88,6 +88,7 @@ app.use(serve(path.join(__dirname, './'), { index: false }));
 // Enable Body parser
 app.use(bodyParser({
   multipart: true,
+  strict: false,
   formidable: {
     keepExtensions: true,
     onFileBegin: (name, file) => {

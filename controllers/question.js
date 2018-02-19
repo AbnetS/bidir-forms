@@ -57,6 +57,8 @@ exports.create = function* createQuestion(next) {
       .isIn(QUESTION.TYPES, `Question Type should be ${QUESTION.TYPES.join(',')}`);
   this.checkBody('form')
       .notEmpty('Form Reference is Empty');
+  this.checkBody('number')
+      .notEmpty('Question Number is Empty ie 1,2,2.2,3,3.1');
 
   if(this.errors) {
     return this.throw(new CustomError({
@@ -84,20 +86,16 @@ exports.create = function* createQuestion(next) {
       if(!parent) throw new Error('Parent Question Does Not Exist')
     }
 
+    let section;
+    if(body.section) {
+      section = yield Section.findOne({ _id: body.section }).exec();
+      if(!section) throw new Error('Section Does Not Exist')
+    }
+
     // Create Question Type
     question = yield QuestionDal.create(body);
 
-    if(!body.parent_question) {
-      form = form.toJSON();
-
-      let questions = form.questions.slice();
-
-      questions.push(question._id);
-
-      yield FormDal.update({ _id: form._id },{
-        questions: questions
-      });
-    } else {
+    if(body.parent_question) {
       parent = parent.toJSON();
 
       let subQuestions = parent.sub_questions.slice();
@@ -107,13 +105,34 @@ exports.create = function* createQuestion(next) {
       yield QuestionDal.update({ _id: parent._id },{
         sub_questions: subQuestions
       });
+    } else if(body.section) {
+      section = section.toJSON();
+
+      let questions = section.questions.slice();
+
+      questions.push(question._id);
+
+      yield SectionDal.update({ _id: section._id },{
+        questions: questions
+      });
+
+    } else {
+      form = form.toJSON();
+
+      let questions = form.questions.slice();
+
+      questions.push(question._id);
+
+      yield FormDal.update({ _id: form._id },{
+        questions: questions
+      });
+
     }
 
 
     this.body = question;
 
   } catch(ex) {
-    console.log(ex)
     this.throw(new CustomError({
       type: 'QUESTION_CREATION_ERROR',
       message: ex.message
@@ -158,6 +177,8 @@ exports.createGrouped = function* createGroupedQuestion(next) {
       .toBoolean('Show Value is not a boolean value');
   this.checkBody('form')
       .notEmpty('Form Reference is Empty');
+  this.checkBody('number')
+      .notEmpty('Question Number is Empty ie 1,2,2.2,3,3.1');
 
   if(this.errors) {
     return this.throw(new CustomError({
@@ -178,6 +199,12 @@ exports.createGrouped = function* createGroupedQuestion(next) {
       throw new Error('Question with that title already exists!!');
     }
 
+    let section;
+    if(body.section) {
+      section = yield Section.findOne({ _id: body.section }).exec();
+      if(!section) throw new Error('Section Does Not Exist')
+    }
+
     if(!body.show && !body.prerequisites) throw new Error('Question Requires Prerequisites');
 
     body.type = 'GROUPED';
@@ -185,17 +212,7 @@ exports.createGrouped = function* createGroupedQuestion(next) {
     // Create Question Type
     question = yield QuestionDal.create(body);
 
-    if(!body.parent_question) {
-      form = form.toJSON();
-
-      let questions = form.questions.slice();
-
-      questions.push(question._id);
-
-      yield FormDal.update({ _id: form._id },{
-        questions: questions
-      });
-    } else {
+    if(body.parent_question) {
       parent = parent.toJSON();
 
       let subQuestions = parent.sub_questions.slice();
@@ -205,6 +222,28 @@ exports.createGrouped = function* createGroupedQuestion(next) {
       yield QuestionDal.update({ _id: parent._id },{
         sub_questions: subQuestions
       });
+    } else if(body.section) {
+      section = section.toJSON();
+
+      let questions = section.questions.slice();
+
+      questions.push(question._id);
+
+      yield SectionDal.update({ _id: section._id },{
+        questions: questions
+      });
+
+    } else {
+      form = form.toJSON();
+
+      let questions = form.questions.slice();
+
+      questions.push(question._id);
+
+      yield FormDal.update({ _id: form._id },{
+        questions: questions
+      });
+
     }
 
     this.body = question;
@@ -254,6 +293,8 @@ exports.createFIB = function* createFIBQuestion(next) {
       .toBoolean('Show Value is not a boolean value');
   this.checkBody('form')
       .notEmpty('Form Reference is Empty');
+  this.checkBody('number')
+      .notEmpty('Question Number is Empty ie 1,2,2.2,3,3.1');
 
   if(this.errors) {
     return this.throw(new CustomError({
@@ -280,6 +321,12 @@ exports.createFIB = function* createFIBQuestion(next) {
       if(!parent) throw new Error('Parent Question Does Not Exist')
     }
 
+    let section;
+    if(body.section) {
+      section = yield Section.findOne({ _id: body.section }).exec();
+      if(!section) throw new Error('Section Does Not Exist')
+    }
+
     if(body.options) {
       throw new Error('Fill in Blank Questions Do not need options');
     }
@@ -292,17 +339,7 @@ exports.createFIB = function* createFIBQuestion(next) {
     // Create Question Type
     question = yield QuestionDal.create(body);
 
-    if(!body.parent_question) {
-      form = form.toJSON();
-
-      let questions = form.questions.slice();
-
-      questions.push(question._id);
-
-      yield FormDal.update({ _id: form._id },{
-        questions: questions
-      });
-    } else {
+    if(body.parent_question) {
       parent = parent.toJSON();
 
       let subQuestions = parent.sub_questions.slice();
@@ -312,6 +349,28 @@ exports.createFIB = function* createFIBQuestion(next) {
       yield QuestionDal.update({ _id: parent._id },{
         sub_questions: subQuestions
       });
+    } else if(body.section) {
+      section = section.toJSON();
+
+      let questions = section.questions.slice();
+
+      questions.push(question._id);
+
+      yield SectionDal.update({ _id: section._id },{
+        questions: questions
+      });
+
+    } else {
+      form = form.toJSON();
+
+      let questions = form.questions.slice();
+
+      questions.push(question._id);
+
+      yield FormDal.update({ _id: form._id },{
+        questions: questions
+      });
+
     }
 
     this.body = question;
@@ -358,6 +417,8 @@ exports.createMC = function* createMultipleChoiceQuestion(next) {
       .toBoolean('Show Value is not a boolean value');
   this.checkBody('form')
       .notEmpty('Form Reference is Empty');
+  this.checkBody('number')
+      .notEmpty('Question Number is Empty ie 1,2,2.2,3,3.1');
 
   if(this.errors) {
     return this.throw(new CustomError({
@@ -384,6 +445,12 @@ exports.createMC = function* createMultipleChoiceQuestion(next) {
       if(!parent) throw new Error('Parent Question Does Not Exist')
     }
 
+    let section;
+    if(body.section) {
+      section = yield Section.findOne({ _id: body.section }).exec();
+      if(!section) throw new Error('Section Does Not Exist')
+    }
+
     if(!body.show && !body.prerequisites) throw new Error('Question Requires Prerequisites');
 
     body.type = 'MULTIPLE_CHOICE';
@@ -391,17 +458,7 @@ exports.createMC = function* createMultipleChoiceQuestion(next) {
     // Create Question Type
     question = yield QuestionDal.create(body);
 
-    if(!body.parent_question) {
-      form = form.toJSON();
-
-      let questions = form.questions.slice();
-
-      questions.push(question._id);
-
-      yield FormDal.update({ _id: form._id },{
-        questions: questions
-      });
-    } else {
+    if(body.parent_question) {
       parent = parent.toJSON();
 
       let subQuestions = parent.sub_questions.slice();
@@ -411,6 +468,28 @@ exports.createMC = function* createMultipleChoiceQuestion(next) {
       yield QuestionDal.update({ _id: parent._id },{
         sub_questions: subQuestions
       });
+    } else if(body.section) {
+      section = section.toJSON();
+
+      let questions = section.questions.slice();
+
+      questions.push(question._id);
+
+      yield SectionDal.update({ _id: section._id },{
+        questions: questions
+      });
+
+    } else {
+      form = form.toJSON();
+
+      let questions = form.questions.slice();
+
+      questions.push(question._id);
+
+      yield FormDal.update({ _id: form._id },{
+        questions: questions
+      });
+
     }
 
     this.body = question;
@@ -457,6 +536,8 @@ exports.createSC = function* createSingleChoiceQuestion(next) {
       .toBoolean('Show Value is not a boolean value');
   this.checkBody('form')
       .notEmpty('Form Reference is Empty');
+  this.checkBody('number')
+      .notEmpty('Question Number is Empty ie 1,2,2.2,3,3.1');
 
   if(this.errors) {
     return this.throw(new CustomError({
@@ -483,6 +564,12 @@ exports.createSC = function* createSingleChoiceQuestion(next) {
       if(!parent) throw new Error('Parent Question Does Not Exist')
     }
 
+    let section;
+    if(body.section) {
+      section = yield Section.findOne({ _id: body.section }).exec();
+      if(!section) throw new Error('Section Does Not Exist')
+    }
+
     if(!body.show && !body.prerequisites) throw new Error('Question Requires Prerequisites');
 
     body.type = 'SINGLE_CHOICE';
@@ -490,17 +577,7 @@ exports.createSC = function* createSingleChoiceQuestion(next) {
     // Create Question Type
     question = yield QuestionDal.create(body);
 
-    if(!body.parent_question) {
-      form = form.toJSON();
-
-      let questions = form.questions.slice();
-
-      questions.push(question._id);
-
-      yield FormDal.update({ _id: form._id },{
-        questions: questions
-      });
-    } else {
+    if(body.parent_question) {
       parent = parent.toJSON();
 
       let subQuestions = parent.sub_questions.slice();
@@ -510,6 +587,28 @@ exports.createSC = function* createSingleChoiceQuestion(next) {
       yield QuestionDal.update({ _id: parent._id },{
         sub_questions: subQuestions
       });
+    } else if(body.section) {
+      section = section.toJSON();
+
+      let questions = section.questions.slice();
+
+      questions.push(question._id);
+
+      yield SectionDal.update({ _id: section._id },{
+        questions: questions
+      });
+
+    } else {
+      form = form.toJSON();
+
+      let questions = form.questions.slice();
+
+      questions.push(question._id);
+
+      yield FormDal.update({ _id: form._id },{
+        questions: questions
+      });
+
     }
 
     this.body = question;
@@ -554,6 +653,8 @@ exports.createYN = function* createYNQuestion(next) {
       .toBoolean('Show Value is not a boolean value');
   this.checkBody('form')
       .notEmpty('Form Reference is Empty');
+  this.checkBody('number')
+      .notEmpty('Question Number is Empty ie 1,2,2.2,3,3.1');
 
   if(this.errors) {
     return this.throw(new CustomError({
@@ -580,6 +681,12 @@ exports.createYN = function* createYNQuestion(next) {
       if(!parent) throw new Error('Parent Question Does Not Exist')
     }
 
+    let section;
+    if(body.section) {
+      section = yield Section.findOne({ _id: body.section }).exec();
+      if(!section) throw new Error('Section Does Not Exist')
+    }
+
     if(!body.show && !body.prerequisites) throw new Error('Question Requires Prerequisites');
 
     body.type = 'YES_NO';
@@ -587,17 +694,7 @@ exports.createYN = function* createYNQuestion(next) {
     // Create Question Type
     question = yield QuestionDal.create(body);
 
-    if(!body.parent_question) {
-      form = form.toJSON();
-
-      let questions = form.questions.slice();
-
-      questions.push(question._id);
-
-      yield FormDal.update({ _id: form._id },{
-        questions: questions
-      });
-    } else {
+    if(body.parent_question) {
       parent = parent.toJSON();
 
       let subQuestions = parent.sub_questions.slice();
@@ -607,6 +704,28 @@ exports.createYN = function* createYNQuestion(next) {
       yield QuestionDal.update({ _id: parent._id },{
         sub_questions: subQuestions
       });
+    } else if(body.section) {
+      section = section.toJSON();
+
+      let questions = section.questions.slice();
+
+      questions.push(question._id);
+
+      yield SectionDal.update({ _id: section._id },{
+        questions: questions
+      });
+
+    } else {
+      form = form.toJSON();
+
+      let questions = form.questions.slice();
+
+      questions.push(question._id);
+
+      yield FormDal.update({ _id: form._id },{
+        questions: questions
+      });
+
     }
 
     this.body = question;
@@ -773,6 +892,7 @@ exports.remove = function* removeQuestion(next) {
 
   try {
     let form = yield Form.findOne({ _id: body.form }).exec();
+    console.log(form, body);
     if(!form) {
       throw new Error(' Form Does Not Exist')
     }
