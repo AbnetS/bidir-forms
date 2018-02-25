@@ -23,6 +23,7 @@ const TokenDal         = require('../dal/token');
 const FormDal          = require('../dal/form');
 const LogDal           = require('../dal/log');
 const QuestionDal      = require('../dal/question');
+const SectionDal       = require('../dal/section');
 
 let hasPermission = checkPermissions.isPermitted('FORM');
 
@@ -130,6 +131,55 @@ exports.fetchOne = function* fetchOneForm(next) {
   } catch(ex) {
     return this.throw(new CustomError({
       type: 'GET_FORM_ERROR',
+      message: ex.message
+    }));
+  }
+
+};
+
+/**
+ * Get form sections.
+ *
+ * @desc Fetch a form with the given id from the database.
+ *
+ * @param {Function} next Middleware dispatcher
+ */
+exports.getFormSections = function* getFormSections(next) {
+  debug(`fetch sections for form: ${this.params.id}`);
+
+  let isPermitted = yield hasPermission(this.state._user, 'VIEW');
+  if(!isPermitted) {
+    return this.throw(new CustomError({
+      type: 'GET_FORM_SECTIONS_ERROR',
+      message: "You Don't have enough permissions to complete this action"
+    }));
+  }
+
+  let query = {
+    _id: this.params.id
+  };
+
+  try {
+    let form = yield FormDal.get(query);
+    let sections = [];
+
+    for(let section of form.sections) {
+      let _section = yield SectionDal.get({ _id: section._id });
+
+      sections.push(_section.toJSON());
+    }
+
+    yield LogDal.track({
+      event: 'view_form_sections',
+      form: this.state._user._id ,
+      message: `View sections for form - ${form.title}`
+    });
+
+    this.body = sections;
+
+  } catch(ex) {
+    return this.throw(new CustomError({
+      type: 'GET_FORM_SECTIONS_ERROR',
       message: ex.message
     }));
   }

@@ -123,6 +123,33 @@ router.post('/create', acl(['*']), formController.create);
 router.get('/paginate', acl(['*']), formController.fetchAllByPagination);
 
 /**
+ * @api {get} /forms/:id/sections Get Form Sections
+ * @apiVersion 1.0.0
+ * @apiName GetSections
+ * @apiGroup Form
+ *
+ * @apiDescription Get sections for form with the given id
+ *
+ * @apiSuccess {String} _id section id
+ * @apiSuccess {String} title Section Title
+ * @apiSuccess {Array} questions Section Questions
+ * @apiSuccess {String} number Question Order number
+ *
+ * @apiSuccessExample Response Example:
+ *  [{
+ *    _id : "556e1174a8952c9521286a60",
+ *    title: "Crop Fertiliser Distribution ",
+ *    questions: [{
+ *     _id : "556e1174a8952c9521286a60",
+ *       ....
+ *    }]
+ *  }]
+ *
+ */
+router.get('/:id/sections', acl(['*']), formController.getFormSections);
+
+
+/**
  * @api {get} /forms/:id Get Form Form
  * @apiVersion 1.0.0
  * @apiName Get
