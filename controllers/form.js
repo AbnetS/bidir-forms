@@ -1,4 +1,5 @@
 'use strict';
+
 /**
  * Load Module Dependencies.
  */
@@ -18,6 +19,9 @@ const config              = require('../config');
 const CustomError         = require('../lib/custom-error');
 const checkPermissions    = require('../lib/permissions');
 const FORM                = require ('../lib/enums').FORM;
+
+const Form              = require('../models/form');
+const Section           = require('../models/section');
 
 const TokenDal         = require('../dal/token');
 const FormDal          = require('../dal/form');
@@ -318,9 +322,21 @@ exports.remove = function* removeForm(next) {
 
     for(let question of form.questions) {
       question = yield QuestionDal.delete({ _id: question._id });
-      if(question.sub_question.length) {
+      if(question.sub_questions.length) {
         for(let _question of question.sub_questions) {
           yield QuestionDal.delete({ _id: _question._id });
+        }
+      }
+    }
+
+    for(let section of form.sections) {
+      section = yield SectionDal.delete({ _id: section._id });
+
+      for(let question of section.questions) {
+        question = yield QuestionDal.delete({ _id: question._id });
+
+        for(let sub of question.sub_questions) {
+          sub = yield QuestionDal.delete({ _id: question._id });
         }
       }
     }

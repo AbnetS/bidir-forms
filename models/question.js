@@ -13,7 +13,7 @@ var Schema = mongoose.Schema;
 
 var QuestionSchema = new Schema({       
     question_text:      { type: String, required: true },
-    number:             { type: String, default: '' },
+    number:             { type: Number, default: 1 },
     remark:             { type: String, default: '' },
     type:               { type: String, enums: QUESTION.TYPES, default: QUESTION.TYPES[0] },
     required:           { type: Boolean, default: false },

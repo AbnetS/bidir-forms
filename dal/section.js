@@ -17,9 +17,15 @@ var returnFields = Section.attributes;
 var population = [{
   path: 'questions',
   select: Question.attributes,
+  options: {
+    sort: { number: '1' }
+  },
   populate: {
     path: 'sub_questions',
-    select: Question.attributes
+    select: Question.attributes,
+    options: {
+      sort: { number: '1' }
+    }
   }
 }];
 

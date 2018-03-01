@@ -15,6 +15,7 @@ const CustomError        = require('../lib/custom-error');
 const checkPermissions   = require('../lib/permissions');
 
 const Form              = require('../models/form');
+const Section           = require('../models/section');
 
 const TokenDal          = require('../dal/token');
 const SectionDal        = require('../dal/section');
@@ -222,4 +223,63 @@ exports.fetchAllByPagination = function* fetchAllSections(next) {
       message: ex.message
     }));
   }
+};
+
+
+/**
+ * Remove a single section.
+ *
+ * @desc Remove a section with the given id from the database
+ *       and update their data
+ *
+ * @param {Function} next Middleware dispatcher
+ */
+exports.remove = function* removeSection(next) {
+  debug(`removing section: ${this.params.id}`);
+
+  let query = {
+    _id: this.params.sectionID
+  };
+
+  try {
+    let section = yield SectionDal.delete(query);
+    let form    = yield Form.findOne({ _id: this.params.formID }).exec();
+
+    if(!section || !section._id) throw new Error('Section Does Not Exist');
+    if(!form) throw new Error('Form Does Not Exist');
+
+    for(let question of section.questions) {
+      question = yield QuestionDal.delete({ _id: question._id });
+
+      for(let sub of question.sub_questions) {
+        sub = yield QuestionDal.delete({ _id: question._id });
+      }
+    }
+
+    form = form.toJSON();
+
+    let sections = form.sections.slice();
+
+    _.pull(sections, section._id);
+
+    yield FormDal.update({ _id: form._id },{
+      sections: sections
+    });
+
+    yield LogDal.track({
+      event: 'remove_section',
+      section: this.state._user._id ,
+      message: `Remove section ${section.title}`
+    });
+
+    this.body = section;
+
+  } catch(ex) {
+    return this.throw(new CustomError({
+      type: 'REMOVE_SECTION_ERROR',
+      message: ex.message
+    }));
+
+  }
+
 };

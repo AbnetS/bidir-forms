@@ -15,7 +15,10 @@ const mongoUpdate   = require('../lib/mongo-update');
 var returnFields = Question.attributes;
 var population = [{
   path: 'sub_questions',
-  select: Question.attributes
+  select: Question.attributes,
+  options: {
+    sort: { number: '1' }
+  }
 }];
 
 /**

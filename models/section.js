@@ -11,7 +11,7 @@ var Schema = mongoose.Schema;
 
 var SectionSchema = new Schema({       
     title:           { type: String, default: '' },
-    number:          { type: String, default: '' },
+    number:          { type: Number, default: 1 },
     questions:       [{ type: Schema.Types.ObjectId, ref: 'Question' }],
     date_created:    { type: Date },
     last_modified:   { type: Date }
