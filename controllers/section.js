@@ -238,21 +238,24 @@ exports.remove = function* removeSection(next) {
   debug(`removing section: ${this.params.id}`);
 
   let query = {
-    _id: this.params.sectionID
+    _id: this.params.id
   };
+
 
   try {
     let section = yield SectionDal.delete(query);
-    let form    = yield Form.findOne({ _id: this.params.formID }).exec();
+    let form    = yield Form.findOne({ _id: this.query.form }).exec();
 
     if(!section || !section._id) throw new Error('Section Does Not Exist');
     if(!form) throw new Error('Form Does Not Exist');
 
-    for(let question of section.questions) {
-      question = yield QuestionDal.delete({ _id: question._id });
+    if(section.questions) {
+      for(let question of section.questions) {
+        question = yield QuestionDal.delete({ _id: question._id });
 
-      for(let sub of question.sub_questions) {
-        sub = yield QuestionDal.delete({ _id: question._id });
+        for(let sub of question.sub_questions) {
+          sub = yield QuestionDal.delete({ _id: question._id });
+        }
       }
     }
 

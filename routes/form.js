@@ -6,7 +6,6 @@ const Router  = require('koa-router');
 const debug   = require('debug')('api:form-router');
 
 const formController      = require('../controllers/form');
-const sectionController   = require('../controllers/section');
 const authController      = require('../controllers/auth');
 
 const acl               = authController.accessControl;
@@ -250,53 +249,6 @@ router.get('/:id', acl(['*']), formController.fetchOne);
  *
  */
 router.put('/:id', acl(['*']), formController.update);
-
-/**
- * @api {delete} /forms/:id/sections/:id Remove Form Section
- * @apiVersion 1.0.0
- * @apiName RemoveFormSection
- * @apiGroup Form 
- *
- * @apiDescription Delete a Form section with the given id
- *
- *
- * @apiSuccess {String} _id form id
- * @apiSuccess {String} type Form Type ie SCREENING or LOAN_APPLICATION
- * @apiSuccess {String} subtitle Form Subtitle
- * @apiSuccess {String} title Form Title
- * @apiSuccess {String} purpose Form Purpose
- * @apiSuccess {Array} questions Form Questions
- * @apiSuccess {String} layout Form Layout ie TWO_COLUMNS or THREE_COLUMNS 
- * @apiSuccess {String} created_by Officer Account registering this
- * @apiSuccess {Array} sections Form Sections
- * @apiSuccess {Boolean} has_sections If Form has Sections
- * @apiSuccess {String} disclaimer Disclaimer
- * @apiSuccess {Array} signatures Accepted Signatures
- *
- * @apiSuccessExample Response Example:
- *  {
- *    _id : "556e1174a8952c9521286a60",
-  *    type: "SCREENING",
- *    subtitle: "Subtitle",
- *    title: "Title",
- *    purpose: "To Vet Clients",
- *    questions: ]{
- *     _id : "556e1174a8952c9521286a60",
- *       ....
- *    }],
- *    created_by: {
- *     _id : "556e1174a8952c9521286a60",
- *       ....
- *    },
- *    has_sections: false,
- *    sections: [],
- *    layout: 'TWO_COLUMNS',
- *    disclaimer: "",
- *    signatures: ["Applicant", "Filled By", "Checked By"]
- *  }
- *
- */
-router.delete('/:formID/sections/:sectionID', acl(['*']), sectionController.remove);
 
 /**
  * @api {delete} /forms/:id Delete Form

@@ -523,19 +523,13 @@ router.get('/:id', acl(['*']), questionController.fetchOne);
 router.put('/:id', acl(['*']), questionController.update);
 
 /**
- * @api {delete} /forms/questions/:id Delete Question Question
+ * @api {delete} /forms/questions/:id?form=<FORM_REFERENCE> Delete  Question
  * @apiVersion 1.0.0
- * @apiName Update
+ * @apiName Delete
  * @apiGroup Question 
  *
- * @apiDescription Update a Question question with the given id
- *
- * @apiParam {String} [parent_question] Parent question if sub_question
- *
- * @apiParamExample Request example:
- * {
- *    parent_question: "556e1174a8952c9521286a60"
- * }
+ * @apiDescription Remove a Question question with the given id.
+ *  specify /?form=<FORM_ID> or /?parent_question=<PARENT_Q_ID> if removing from grouped
  *
  * @apiSuccess {String} _id question id
  * @apiSuccess {String} question_text Question Text Title

@@ -140,6 +140,33 @@ router.put('/:id', acl(['*']), sectionController.update);
  */
 router.get('/paginate', acl(['*']), sectionController.fetchAllByPagination);
 
+/**
+ * @api {delete} /forms/sections/:id?form=<FORM_REF> Remove Form Section
+ * @apiVersion 1.0.0
+ * @apiName RemoveFormSection
+ * @apiGroup Form 
+ *
+ * @apiDescription Delete a Form section with the given id
+ *
+ *
+ * @apiSuccess {String} _id section id
+ * @apiSuccess {String} title Section Title
+ * @apiSuccess {Array} questions Section Questions
+ * @apiSuccess {String} number Question Order number
+ *
+ * @apiSuccessExample Response Example:
+ *  {
+ *    _id : "556e1174a8952c9521286a60",
+ *    title: "Crop Fertiliser Distribution ",
+ *    questions: [{
+ *     _id : "556e1174a8952c9521286a60"
+ *       ....
+ *    }]
+ *  }
+ *
+ */
+router.delete('/:id', acl(['*']), sectionController.remove);
+
 
 // Expose Section Router
 module.exports = router;

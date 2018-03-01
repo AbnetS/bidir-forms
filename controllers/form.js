@@ -332,11 +332,13 @@ exports.remove = function* removeForm(next) {
     for(let section of form.sections) {
       section = yield SectionDal.delete({ _id: section._id });
 
-      for(let question of section.questions) {
-        question = yield QuestionDal.delete({ _id: question._id });
+      if(section.questions) {
+        for(let question of section.questions) {
+          question = yield QuestionDal.delete({ _id: question._id });
 
-        for(let sub of question.sub_questions) {
-          sub = yield QuestionDal.delete({ _id: question._id });
+          for(let sub of question.sub_questions) {
+            sub = yield QuestionDal.delete({ _id: question._id });
+          }
         }
       }
     }

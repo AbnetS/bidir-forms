@@ -36,6 +36,13 @@ var population = [{
     select: Question.attributes,
     options: {
       sort: { number: '1' }
+    },
+    populate: {
+      path: 'sub_questions',
+      select: Question.attributes,
+      options: {
+        sort: { number: '1' }
+      }
     }
   },
   options: {

@@ -68,14 +68,18 @@ exports.create = function* createQuestion(next) {
   }
 
   try {
+
+    let question;
     let form = yield Form.findOne({ _id: body.form }).exec();
     if(!form) {
       throw new Error('Question Form Does Not Exist')
     }
 
-    let question = yield QuestionDal.get({ question_text: body.question_text });
-    if(question) {
-      throw new Error('Question with that title already exists!!');
+    if(!body.parent_question) {
+      question = yield QuestionDal.get({ question_text: body.question_text });
+      if(question) {
+        throw new Error('Question with that title already exists!!');
+      }
     }
 
     if(!body.show && !body.prerequisites) throw new Error('Question Requires Prerequisites');
@@ -189,14 +193,17 @@ exports.createGrouped = function* createGroupedQuestion(next) {
 
   try {
 
+    let question;
     let form = yield Form.findOne({ _id: body.form }).exec();
     if(!form) {
       throw new Error('Question Form Does Not Exist')
     }
 
-    let question = yield QuestionDal.get({ question_text: body.question_text });
-    if(question) {
-      throw new Error('Question with that title already exists!!');
+    if(!body.parent_question) {
+      question = yield QuestionDal.get({ question_text: body.question_text });
+      if(question) {
+        throw new Error('Question with that title already exists!!');
+      }
     }
 
     let section;
@@ -305,14 +312,17 @@ exports.createFIB = function* createFIBQuestion(next) {
 
   try {
 
+    let question;
     let form = yield Form.findOne({ _id: body.form }).exec();
     if(!form) {
       throw new Error('Question Form Does Not Exist')
     }
 
-    let question = yield QuestionDal.get({ question_text: body.question_text });
-    if(question) {
-      throw new Error('Question with that title already exists!!');
+    if(!body.parent_question) {
+      question = yield QuestionDal.get({ question_text: body.question_text });
+      if(question) {
+        throw new Error('Question with that title already exists!!');
+      }
     }
 
     let parent;
@@ -376,6 +386,7 @@ exports.createFIB = function* createFIBQuestion(next) {
     this.body = question;
 
   } catch(ex) {
+    console.log(ex);
     this.throw(new CustomError({
       type: 'CREATE_FIB_QUESTION_ERROR',
       message: ex.message
@@ -429,14 +440,17 @@ exports.createMC = function* createMultipleChoiceQuestion(next) {
 
   try {
 
+    let question;
     let form = yield Form.findOne({ _id: body.form }).exec();
     if(!form) {
       throw new Error('Question Form Does Not Exist')
     }
 
-    let question = yield QuestionDal.get({ question_text: body.question_text });
-    if(question) {
-      throw new Error('Question with that title already exists!!');
+    if(!body.parent_question) {
+      question = yield QuestionDal.get({ question_text: body.question_text });
+      if(question) {
+        throw new Error('Question with that title already exists!!');
+      }
     }
 
     let parent;
@@ -548,14 +562,17 @@ exports.createSC = function* createSingleChoiceQuestion(next) {
 
   try {
 
+    let question;
     let form = yield Form.findOne({ _id: body.form }).exec();
     if(!form) {
       throw new Error('Question Form Does Not Exist')
     }
 
-    let question = yield QuestionDal.get({ question_text: body.question_text });
-    if(question) {
-      throw new Error('Question with that title already exists!!');
+    if(!body.parent_question) {
+      question = yield QuestionDal.get({ question_text: body.question_text });
+      if(question) {
+        throw new Error('Question with that title already exists!!');
+      }
     }
 
     let parent;
@@ -665,14 +682,17 @@ exports.createYN = function* createYNQuestion(next) {
 
   try {
 
+    let question;
     let form = yield Form.findOne({ _id: body.form }).exec();
     if(!form) {
       throw new Error('Question Form Does Not Exist')
     }
 
-    let question = yield QuestionDal.get({ question_text: body.question_text });
-    if(question) {
-      throw new Error('Question with that title already exists!!');
+    if(!body.parent_question) {
+      question = yield QuestionDal.get({ question_text: body.question_text });
+      if(question) {
+        throw new Error('Question with that title already exists!!');
+      }
     }
 
     let parent;
@@ -888,14 +908,8 @@ exports.remove = function* removeQuestion(next) {
   let query = {
     _id: this.params.id
   };
-  let body = this.request.body;
 
   try {
-    let form = yield Form.findOne({ _id: body.form }).exec();
-    console.log(form, body);
-    if(!form) {
-      throw new Error(' Form Does Not Exist')
-    }
 
     let question = yield QuestionDal.get(query);
     if(!question) {
@@ -904,35 +918,9 @@ exports.remove = function* removeQuestion(next) {
 
     question = yield QuestionDal.delete(query);
 
-    form = form.toJSON();
-
-    // Remove from Form
-    let questions = form.questions.slice();
-
-    _.pull(questions, question._id);
-
-    yield FormDal.update({ _id: form._id },{
-      questions: questions
-    });
-
-    // Remove from sections
-
-    let sections = form.sections.slice();
-
-    for(let section of sections) {
-      // Remove from Form
-      section = yield Section.findOne({ _id: section }).exec();
-
-      let questions = section.questions.slice();
-
-      _.pull(questions, question._id);
-
-      yield SectionDal.update({ _id: section._id },{ questions: question })
-    }
-
     // remove from parent question
-    if(body.parent_question) {
-      let parent = yield Question.findOne({ _id: body.question }).exec();
+    if(this.query.parent_question) {
+      let parent = yield Question.findOne({ _id: this.query.parent_question }).exec();
 
       let subQquestions = parent.sub_questions.slice();
 
@@ -940,13 +928,49 @@ exports.remove = function* removeQuestion(next) {
 
       yield QuestionDal.update({ _id: parent._id },{ sub_questions: subQquestions })
 
+    } else {
+      if(!this.query.form) {
+        throw new Error('Form reference missing in query');
+      }
+
+      let form = yield Form.findOne({ _id: this.query.form }).exec();
+      if(!form) {
+        throw new Error(' Form Does Not Exist')
+      }
+      
+      form = form.toJSON();
+    
+      // Remove from Form
+      let questions = form.questions.slice();
+
+      _.pull(questions, question._id);
+
+      yield FormDal.update({ _id: form._id },{
+        questions: questions
+      });
+
+
+      // Remove from sections
+      let sections = form.sections.slice();
+      for(let section of sections) {
+        // Remove from Form
+        section = yield Section.findOne({ _id: section }).exec();
+        if(!section) continue;
+
+        let questions = section.questions.slice();
+
+        _.pull(questions, question._id);
+
+        yield SectionDal.update({ _id: section._id },{ questions: questions })
+      }
+
     }
+
 
     yield LogDal.track({
       event: 'question_remove',
       question: this.state._user._id ,
-      message: `Remove question with title ${question.question_text}`,
-      diff: body
+      message: `Remove question with title ${question.question_text}`
     });
 
     this.body = question;
