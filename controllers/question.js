@@ -199,12 +199,12 @@ exports.createGrouped = function* createGroupedQuestion(next) {
       throw new Error('Question Form Does Not Exist')
     }
 
-    if(!body.parent_question) {
+    /*if(!body.parent_question) {
       question = yield QuestionDal.get({ question_text: body.question_text });
       if(question) {
         throw new Error('Question with that title already exists!!');
       }
-    }
+    }*/
 
     let section;
     if(body.section) {
@@ -318,12 +318,12 @@ exports.createFIB = function* createFIBQuestion(next) {
       throw new Error('Question Form Does Not Exist')
     }
 
-    if(!body.parent_question) {
+    /*if(!body.parent_question) {
       question = yield QuestionDal.get({ question_text: body.question_text });
       if(question) {
         throw new Error('Question with that title already exists!!');
       }
-    }
+    }*/
 
     let parent;
     if(body.parent_question) {
@@ -446,12 +446,12 @@ exports.createMC = function* createMultipleChoiceQuestion(next) {
       throw new Error('Question Form Does Not Exist')
     }
 
-    if(!body.parent_question) {
+    /*if(!body.parent_question) {
       question = yield QuestionDal.get({ question_text: body.question_text });
       if(question) {
         throw new Error('Question with that title already exists!!');
       }
-    }
+    }*/
 
     let parent;
     if(body.parent_question) {
@@ -568,12 +568,12 @@ exports.createSC = function* createSingleChoiceQuestion(next) {
       throw new Error('Question Form Does Not Exist')
     }
 
-    if(!body.parent_question) {
+    /*if(!body.parent_question) {
       question = yield QuestionDal.get({ question_text: body.question_text });
       if(question) {
         throw new Error('Question with that title already exists!!');
       }
-    }
+    }*/
 
     let parent;
     if(body.parent_question) {
@@ -688,12 +688,12 @@ exports.createYN = function* createYNQuestion(next) {
       throw new Error('Question Form Does Not Exist')
     }
 
-    if(!body.parent_question) {
+    /*if(!body.parent_question) {
       question = yield QuestionDal.get({ question_text: body.question_text });
       if(question) {
         throw new Error('Question with that title already exists!!');
       }
-    }
+    }*/
 
     let parent;
     if(body.parent_question) {
