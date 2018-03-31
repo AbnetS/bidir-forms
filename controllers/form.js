@@ -215,9 +215,9 @@ exports.update = function* updateForm(next) {
   };
   let body = this.request.body;
 
-  /*this.checkBody('type')
+  this.checkBody('type')
       .empty('Form Type is Empty')
-      .isIn(FORM.TYPES, `Accepted Form Types are ${FORM.TYPES.join(',')}`);*/
+      .isIn(FORM.TYPES, `Accepted Form Types are ${FORM.TYPES.join(',')}`);
   this.checkBody('layout')
       .empty('Form Layout is Empty')
       .isIn(FORM.LAYOUTS, `Accepted Form Layouts are ${FORM.LAYOUTS.join(',')}`);
@@ -232,9 +232,11 @@ exports.update = function* updateForm(next) {
   try {
     
     delete body.signatures;
-    delete body.type;
 
-    let form = yield FormDal.update(query, body);
+    let form = yield FormDal.get(query);
+    if(body.type != form.type) throw new Error('Form Type is Not Consisted!');
+
+    form = yield FormDal.update(query, body);
 
     yield LogDal.track({
       event: 'form_update',
