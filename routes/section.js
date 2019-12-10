@@ -20,7 +20,7 @@ var router  = Router();
  * @apiDescription Create new Section. 
  *
  * @apiParam {String} title Section Title
- * @apiParam {Array} [questions] Section Questions
+ * @apiParam {Object[]} [questions] Section Questions
  * @apiParam {String} form Form associated with section
  *
  * @apiParamExample Request Example:
@@ -51,16 +51,16 @@ router.post('/create', acl(['*']), sectionController.create);
 
 
 /**
- * @api {get} /forms/sections/:id Get Section Section
+ * @api {get} /forms/sections/:id Get Section
  * @apiVersion 1.0.0
  * @apiName Get
  * @apiGroup Section
  *
- * @apiDescription Get a user section with the given id
+ * @apiDescription Get a section with the given id
  *
  * @apiSuccess {String} _id section id
  * @apiSuccess {String} title Section Title
- * @apiSuccess {Array} questions Section Questions
+ * @apiSuccess {Object[]} questions Section Questions
  * @apiSuccess {String} number Question Order number
  *
  * @apiSuccessExample Response Example:
@@ -78,12 +78,12 @@ router.get('/:id', acl(['*']), sectionController.fetchOne);
 
 
 /**
- * @api {put} /forms/sections/:id Update Section Section
+ * @api {put} /forms/sections/:id Update Section
  * @apiVersion 1.0.0
  * @apiName Update
  * @apiGroup Section 
  *
- * @apiDescription Update a Section section with the given id
+ * @apiDescription Update a Section with the given id
  *
  * @apiParam {Object} Data Update data
  *
@@ -94,7 +94,7 @@ router.get('/:id', acl(['*']), sectionController.fetchOne);
  *
  * @apiSuccess {String} _id section id
  * @apiSuccess {String} title Section Title
- * @apiSuccess {Array} questions Section Questions
+ * @apiSuccess {Object[]} questions Section Questions
  * @apiSuccess {String} number Question Order number
  *
  * @apiSuccessExample Response Example:
@@ -121,7 +121,7 @@ router.put('/:id', acl(['*']), sectionController.update);
  *
  * @apiSuccess {String} _id section id
  * @apiSuccess {String} title Section Title
- * @apiSuccess {Array} questions Section Questions
+ * @apiSuccess {Object[]} questions Section Questions
  * @apiSuccess {String} number Question Order number
  *
  * @apiSuccessExample Response Example:
@@ -151,7 +151,7 @@ router.get('/paginate', acl(['*']), sectionController.fetchAllByPagination);
  *
  * @apiSuccess {String} _id section id
  * @apiSuccess {String} title Section Title
- * @apiSuccess {Array} questions Section Questions
+ * @apiSuccess {Object[]} questions Section Questions
  * @apiSuccess {String} number Question Order number
  *
  * @apiSuccessExample Response Example:
